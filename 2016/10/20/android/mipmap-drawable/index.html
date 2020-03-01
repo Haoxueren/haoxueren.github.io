@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="App的图标文件放/mipmap目录，系统会使用mipmap纹理技术对图标进行处理，再根据手机分辨率生成更清晰的图标。其它图像资源仍然放在/drawable目录。如果App内的图像文件也想使用mipmap技术，可以使用bitmap.setHasMipmap()启用mipmap模式。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mipmap与drawable的区别">
+<meta property="og:url" content="http://haoxueren.com/2016/10/20/android/mipmap-drawable/index.html">
+<meta property="og:site_name" content="稳扎稳打，步步为营">
+<meta property="og:description" content="App的图标文件放/mipmap目录，系统会使用mipmap纹理技术对图标进行处理，再根据手机分辨率生成更清晰的图标。其它图像资源仍然放在/drawable目录。如果App内的图像文件也想使用mipmap技术，可以使用bitmap.setHasMipmap()启用mipmap模式。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-30T06:26:46.714Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mipmap与drawable的区别">
+<meta name="twitter:description" content="App的图标文件放/mipmap目录，系统会使用mipmap纹理技术对图标进行处理，再根据手机分辨率生成更清晰的图标。其它图像资源仍然放在/drawable目录。如果App内的图像文件也想使用mipmap技术，可以使用bitmap.setHasMipmap()启用mipmap模式。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://haoxueren.com/2016/10/20/android/mipmap-drawable/"/>
+
+
+
+
+
+  <title>mipmap与drawable的区别 | 稳扎稳打，步步为营</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">稳扎稳打，步步为营</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">对生活充满热情，对未来充满信心</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://haoxueren.com/2016/10/20/android/mipmap-drawable/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="好学人">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="稳扎稳打，步步为营">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mipmap与drawable的区别</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-10-20T00:00:00+08:00">
+                2016-10-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>App的图标文件放/mipmap目录，系统会使用mipmap纹理技术对图标进行处理，再根据手机分辨率生成更清晰的图标。其它图像资源仍然放在/drawable目录。如果App内的图像文件也想使用mipmap技术，可以使用<code>bitmap.setHasMipmap()</code>启用mipmap模式。</p>
+<a id="more"></a> 
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://android.xsoftlab.net/tools/projects/index.html" target="_blank" rel="external">Android Application Modules</a></p>
+<p><a href="http://www.jianshu.com/p/7afcadeb1e8e" target="_blank" rel="external">mipmap和drawable文件夹的区别</a></p>
+<h3 id="mipmap纹理技术简介"><a href="#mipmap纹理技术简介" class="headerlink" title="mipmap纹理技术简介"></a>mipmap纹理技术简介</h3><p>在三维世界中，显示一张图的大小与摄象机的位置有关，近的地方，图片实际象素就会大一些；远的地方，图片实际象素就会小一些。这就要对图片进行一些压缩。例如一张 64*64 的图，在近处，显示出来可能是 50*50，在远处可能显示出来是 20*20。</p>
+<p>如果只限于简单的支持某些分辨率，将会使缩小后的图片损失很多细节，图片将变得很粗糙，因此，图形学有很多复杂的方法来处理压缩图片的问题，使得缩小后的图片依然清晰，然而，这些计算都会耗费一定的时间。</p>
+<p>mipmap纹理技术是目前解决纹理分辨率与视点距离关系的最有效途径，它会先将图片压缩成很多逐渐缩小的图片，例如一张 64*64 的图片，会产生 64*64，32*32，16*16，8*8，4*4，2*2，1*1的 7 张图片，当屏幕上需要绘制像素点为 20*20 时，程序就会利用 32*32 和 16*16 这两张图片来计算出即将显示为 20*20 的图片，这比单独利用 32*32 的那张原始片计算出来的图片效果要好得多，速度也更快。</p>
+<h3 id="图像资源的mipmap模式"><a href="#图像资源的mipmap模式" class="headerlink" title="图像资源的mipmap模式"></a>图像资源的mipmap模式</h3><p>使用mipmap技术处理图片，可以很好地生成多种分辨率的图像。比如在图像缩放动画中，mipmap模式的图片很有用。</p>
+<p>Android 4.2 (API level 17) 中，Bitmap 类添加了<code>bitmap.hasMipMap()</code>方法和<code>bitmap.setHasMipMap()</code>方法，用来使图片支持mipmap模式。方法源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">setHasMipMap</span><span class="params">(<span class="keyword">boolean</span> hasMipMap)</span> </span>&#123;</div><div class="line">    checkRecycled(<span class="string">"setHasMipMap called on a recycled bitmap"</span>);</div><div class="line">    nativeSetHasMipMap(mNativePtr, hasMipMap);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">hasMipMap</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (mRecycled) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Called hasMipMap() on a recycle()'d bitmap! This is undefined behavior!"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> nativeHasMipMap(mNativePtr);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在Android 4.3中，BitmapDrawable类添加了<code>bitmapDrawable.hasMipMap()</code>方法和<code>bitmapDrawable.setMipMap()</code>方法。方法源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMipMap</span><span class="params">(<span class="keyword">boolean</span> mipMap)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (mBitmapState.mBitmap != <span class="keyword">null</span>) &#123;</div><div class="line">        mBitmapState.mBitmap.setHasMipMap(mipMap);</div><div class="line">        invalidateSelf();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasMipMap</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mBitmapState.mBitmap != <span class="keyword">null</span> &amp;&amp; mBitmapState.mBitmap.hasMipMap();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>由源码可见，BitmapDrawable是Bitmap的包装类，BitmapDrawable的setMipMap和hasMipMap方法，其实也是对Bitmap相应方法的包装。</p>
+</blockquote>
+<p>应用举例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Resources resources = context.getResources();</div><div class="line">Drawable drawable = resources.getDrawable(resId, theme);</div><div class="line">BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;</div><div class="line">bitmapDrawable.getBitmap().setHasMipMap(<span class="keyword">true</span>);</div><div class="line"><span class="keyword">boolean</span> hasMipMap = bitmapDrawable.hasMipMap();</div></pre></td></tr></table></figure></p>
+<h3 id="drawable与mipmap的区别"><a href="#drawable与mipmap的区别" class="headerlink" title="drawable与mipmap的区别"></a>drawable与mipmap的区别</h3><p>APP的启动图标，应该放在mipmap目录下，以确保系统可以使用最佳分辨率的图标。放在mipmap目录下的图标，系统会使用mipmap纹理技术进行优化。</p>
+<p>按官方推荐，应用图标应该放在mipmap目录，其它文件仍然放在drawable目录(实际上，把图片放到mipmap目录也是可以正常使用的)。</p>
+<p><strong>drawable</strong></p>
+<p>For bitmap files (PNG, JPEG, or GIF), 9-Patch image files, and XML files that describe Drawable shapes or Drawable objects that contain multiple states (normal, pressed, or focused). See the <a href="http://android.xsoftlab.net/guide/topics/resources/drawable-resource.html" target="_blank" rel="external">Drawable</a> resource type. </p>
+<p><strong>mipmap</strong></p>
+<p>For app launcher icons. The Android system retains the resources in this folder (and density-specific folders such as mipmap-xxxhdpi) regardless of the screen resolution of the device where your app is installed. This behavior allows launcher apps to pick the best resolution icon for your app to display on the home screen. For more information about using the mipmap folders, see <a href="http://android.xsoftlab.net/tools/projects/index.html#mipmap" target="_blank" rel="external">Managing Launcher Icons as mipmap Resources</a>.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/06/android/what-is-restful/" rel="next" title="什么是RESTful架构？">
+                <i class="fa fa-chevron-left"></i> 什么是RESTful架构？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/25/android/LocalBroadcastManager/" rel="prev" title="LocalBroadcastManager实现组件间通讯">
+                LocalBroadcastManager实现组件间通讯 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">好学人</p>
+              <p class="site-description motion-element" itemprop="description">今年最重要的事情是什么？</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">93</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">1.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mipmap纹理技术简介"><span class="nav-number">2.</span> <span class="nav-text">mipmap纹理技术简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图像资源的mipmap模式"><span class="nav-number">3.</span> <span class="nav-text">图像资源的mipmap模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#drawable与mipmap的区别"><span class="nav-number">4.</span> <span class="nav-text">drawable与mipmap的区别</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">好学人</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

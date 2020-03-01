@@ -1,0 +1,1040 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[Android进程间通信]]></title>
+    <url>%2F2019%2F02%2F23%2Fandroid%2FAndroid%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%2F</url>
+    <content type="text"><![CDATA[1. 简要说说进程与线程的区别和联系。 进程是系统进行资源分配的基本单位，线程是任务执行和调度的基本单位。 一个操作系统内可运行多个进程，每个进程拥有独立的数据空间；一个进程内可运行多个线程，多个线程共享所在进程的系统资源。 线程之间相互切换，资源开销较小；而进程之间相互切换，资源开销较大。 进程与线程都统一由CPU进行调度执行，进程是线程运行的基本环境，线程相当于进程的子任务，颗粒度较小。 2. 应用内使用多进程可能导致哪些问题？ 当一个APP启用了多进程后，系统会为不同的进程分配不同的内存空间，因此所有需要通过内存共享的行为都会失败。另外，还会导致以下几个问题： 进程：Application会被多次创建，因为系统会为每一个进程分配独立的内存空间。 线程：线程同步失效，因为不同进程中的线程同步锁不是同一个对象。 内存：单例模式和静态变量失效，因为不同进程间的内存空间不同。 存储：SharedPreferences可靠性下降，因为系统对SharedPreferences有一定的缓存策略，多个进程同时读写可能会造成数据丢失。 3. Android中有哪些进程间通信方式？ 名称 优点 缺点 适用场景 Bundle 简单易用 只能传输Bundle支持的数据类型 四大组件间的进程间通信 文件共享 简单易用 不适用高并发场景，并且无法做到进程间即时通信 适用于无关发的情况下，交换简单的数据，对实时性要求不高的场景。 AIDL 功能强大，支持一对多实时并发通信 使用稍复杂，需要处理好线程间的关系 一对多通信且有RPC需求 Messenger 功能一般，支持一对多串行通信，支持实时通信 不能很好地处理高并发的情形，不支持RPC，由于数据通过Message传输，因此只能传输Bundle支持的数据类型 低并发的一对多实时通信，无RPC需求，或者无需要返回结果的RPC需求 ContentProvider 支持一对多的实时并发通信，在数据源共享方面功能强大，可通过Call方法扩展其它操作 可以理解为受约束的AIDL，主要提供对数据源的CRUD操作 一对多的进程间数据共享 BroadcastReceiver 操作简单，对持一对多实时通信 只支持数据单向传递，效率低且安全性不高 一对多的低频率单向通信 Socket 功能强大，可通过网络传输字节流，支持一对多实时并发通信 实现细节步骤稍繁琐，不支持直接的RPC 网络间的数据交换 由于不同的进程拥有不同的数据空间，所以无论是应用内还是应用间，均无法通过共享内存来实现进程间通信。 参考资料进程和线程的主要区别(总结) - CSDN 线程和进程的区别是什么？ - 知乎 Android 多进程通信之几个基本问题 面试题：IPC(跨进程通信)]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Androi中的数据存储]]></title>
+    <url>%2F2019%2F01%2F09%2Fandroid%2FAndroid%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%2F</url>
+    <content type="text"><![CDATA[1. Android中有哪些数据存储方式？ Android中的数据存储主要有以下5种方式： File：文件存储，通过I/O流将数据存储在SD上，适用于存储音频、视频、文档等大型文件。 SQLite：数据库存储，SQLite是一种轻量级的关系数据库，类似MySQL，可以用于存储大量关系型的数据。 SharedPreferences：基于key-value的方式存储，适用于存储一些配置数据，底层基于XML文件。 ContentProvider：内容提供者，不但可以存储当前应用的数据，还可以将数据共享给其它应用使用。 网络存储：通过API接口将数据上传到服务器保存，适用一些对安全性 / 隐私性要求较高的数据。]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[ContentProvider基础知识]]></title>
+    <url>%2F2018%2F11%2F18%2Fandroid%2FContentProvider%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%2F</url>
+    <content type="text"><![CDATA[1. 简单谈谈你对ContentProvider的理解。 ContentProvider是Android的四大组件之一，底层采用的是Binder机制，用于Android的进程间通信，使得数据可以跨APP传输和共享。 2. 简单描述下ContentProvider跨进程通信的流程。 在使用ContentProvider进行跨进程通信时，最重要的部分是自定义ContentProvider，自定义ContentProvider时，需要根据外部传入的Uri重写操作数据源的增删改查四个方法。然后外部即可通过Uri间接地操作数据源的数据。 在使用ContentProvider进行进程间通信的过程中，主要涉及到以下几个辅助类： ContentResolver：管理ContentProvider，根据不同的Uri获取对应的ContentProvider。 ContentUris：操作Uri，包括解析Uri中的Id，以及在Uri后追加Id等。 UriMatcher：匹配Uri，对Uri进行匹配，根据匹配结果进行相应的操作。 ContentObserver：观察数据变化。在通过ContentProvider操作数据时，ContentObserver负责监听数据源中的数据变化。 参考资料关于ContentProvider的知识都在这里了 Android ContentProvider - 承香墨影]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[SQLite基础知识]]></title>
+    <url>%2F2018%2F08%2F09%2Fandroid%2FSQLite%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%2F</url>
+    <content type="text"><![CDATA[1. SQLite中的事务处理是怎么做的？ SQLite在进行增删改数据时都默认开启了事务，然后把SQL语句翻译成SQLiteStatement并调用其增删改方法。此时整个操作还是在临时表(rollback journal)上进行的，只有整个操作顺利完成后，才会更新正式的数据库文件，否则就会被回滚。 2. 如何提高SQLite中批量操作的效率？ 使用SQLite事务可以提高批量操作的效率。使用db.beginTransaction()开启事务，然后进行批量操作，操作完成后调用db.setTransactionSuccessful()设置事务成功，最后调用db.endTransaction()结束事务。 3. 怎样才能删除SQLite表中的字段？ SQLite不支持直接删除表的字段~(why?)~，只能根据原表复制一个新表，保留需要的字段，再将原表删除，最后重命名新表即可。 4. 使用SQLite时，可以进行哪些优化操作？ 使用事务进行批处理操作； 操作完成及时关闭Cursor，避免内存泄漏； 对耗时操作进行异步处理。数据库读写属于I/O操作，通常比较耗时，大量的数据库操作建议放入异步线程处理。 合理设置ContentValues的初始容量，避免扩容浪费。ContentValues内部基于HashMap，初始容量为8，容量不足时会进行双倍扩容。建议为ContentValues设置一个合理的初始容量，避免扩容造成内存浪费。 使用索引加快查询速度：对于查询量较大或性能要求较高的查询操作，建议为数据建立索引，以加快查询速度。 5. 使用SQLite时，哪些情况不适合使用索引？ 使用索引可以加快查询数据速度，但会减慢增加、删除、修改数据的速度。以下情况不适合使用索引： 数据量较小的表； 有频繁更新需求的表； 含有大量NULL值的列。]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Activity的生命周期]]></title>
+    <url>%2F2018%2F03%2F09%2Fandroid%2FActivity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%2F</url>
+    <content type="text"><![CDATA[Activity的生命周期 Activity常见知识点1. 介绍下Activity的各个生命周期及其作用？ onCreate()：表示Activity正在创建，此时界面不可见；可以在这个方法里初始化控件，初始化数据等操作。 onStart()：表示Activity正在启动，界面可见但不可交互；可用于界面刷新工作，比如设置控件可见性、开启动画等；Activity每次从后台进入前台，均会执行onStart()方法。 onResume()：表示Activity已进入前台，可以与用户进行交互；可用于收集页面打开率，用户活跃度等数据。 onPause()：表示Activity正在停止，界面仍然可见但已失去焦点；可以在这个方法里停止动画，保存数据等操作。 onStop()：表示Activity已进入后台，界面不可见；可用于取消网络连接，注销广播接收器等操作。 onDestroy()：表示Activity即将被销毁，界面不可见；可用于数据销毁，资源回收等操作。 2. Activity从前台进入后台，到再被用户从后台切换到前台，会依次执行哪些方法？ Activity从前台进入后台时会依次执行：onPause() &gt; onStop() Activity从后台进入前台时会依次执行：onRestart() &gt; onStart() &gt; onResume() 3. 当后台的Activity因内存不足被系统强制回收后，再次唤起会依次执行哪些方法？ 当后台的Activity因内存不足被回收后，该Activity虽未执行onDestroy()，但已经被销毁。 再次唤起该Activity时，会重新创建该Activity，会重新执行onCreate() &gt; onStart() &gt; onResume()。 4. 哪些情况下销毁Activity不会执行onDestroy()方法？ 当Activity异常退出时，不会执行onDestroy()方法。主要有以下3种情况： Activity内的代码抛出异常导致Activity崩溃。 因系统内在不足，后台Activity被强制回收。 用户从最近应用列表杀进程退出Activity。]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[如何使用蓝灯科学上网？]]></title>
+    <url>%2F2018%2F02%2F13%2Ftutorial%2Fhow-to-use-lantern%2F</url>
+    <content type="text"><![CDATA[本文永久链接：https://steemit.com/cn/@haoxueren/6b2gsj 教程简介蓝灯(Lantern)是一款免费的翻墙软件。 学完本教程，你将可以自由地访问Google、Facebook、Twitter、Youtube，甚至一些“你懂得”的网站。总之，你将不再受到GreatWall的限制。 注：本教程基本Windows系统制作。 操作步骤打开浏览器，在地址栏输入：https://github.com/getlantern/lantern/releases/tag/latest，然后按回车键，打开项目主页。如下图： 官方提供了 Windows、Android、MacOS、Ubuntu 四种操作系统上对应的软件。图中红框标识的内容，即为蓝灯的下载地址。 根据你的操作系统，点击相应链接下载即可。下载完成后，双击安装，蓝灯会自动运行。 在蓝灯运行界面的右上角显示了剩余的免费流量(每月有500M免费流量)，右下角显示的是蓝灯的连接状态。如下图： 到此为止，你就可以愉快地访问你想访问的网站了。比如，我们访问一下Google，可以看到，久违的谷歌又来到了你面前。如下图。 教程总结嗯，翻墙，其实是特别简单的一件事儿！ Now, you are freedom! 大家如果有什么不明白的地方，可以点击加入我的知识星球向我提问]]></content>
+      <categories>
+        <category>教程</category>
+      </categories>
+      <tags>
+        <tag>翻墙</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[怎样去除图片的背景色？]]></title>
+    <url>%2F2018%2F02%2F13%2Ftutorial%2Fhow-to-remove-background%2F</url>
+    <content type="text"><![CDATA[教程简介相信大家在写文章的时候，都遇到过需要去除图片背景的问题，今天就为大家介绍一款超级好用的小工具(而且是在线的哦)，可以轻松地去除图片背景。先上效果图： 怎么样？效果不错吧！ 操作步骤也是超级简单哦。 操作步骤第一步：使用浏览器打开网址：http://www.aigei.com/bgremover/ 第二步：点击选择文件，上传要去除背景的图片。 第三步：根据去底效果，不断调节容差值，直到达到最理想的去底效果。 第四步：去底成功后，会生成一个xxx(已去底)的文件，点击下载即可。 教程总结对非专业人士来讲，去除图片的背景色，并不是一件简单的事情。 但是，有了这个小工具，再让你去除个图片背景，简单易如反掌。 如果一件事情你觉得困难，那你一定是没有找对方法。 都看到这儿了，那就点个赞吧！ 更多实用教程，请点击或扫码加入我的知识星球。]]></content>
+      <categories>
+        <category>教程</category>
+      </categories>
+      <tags>
+        <tag>在线工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[广播与广播接收者]]></title>
+    <url>%2F2018%2F01%2F19%2Fandroid%2F%E5%B9%BF%E6%92%AD%E4%B8%8E%E5%B9%BF%E6%92%AD%E6%8E%A5%E6%94%B6%E8%80%85%2F</url>
+    <content type="text"><![CDATA[Android的广播有哪几种类型？各有什么特点？ 1、系统广播(System Broadcast)：Android系统内置的广播，用于对外广播系统基本状态的变化。比如开机广播、锁屏广播、网络状态变化广播、电量变化广播、应用安装与卸载广播等。系统广播，用户只能接收，无法发送。 2、普通广播(Normal Broadcast)：也称无序广播，是用户自行发送和接收的一种广播，可通过定义Intent-Filter指定广播的action和data。发送广播时使用sendBroadcast()。 3、有序广播(Ordered Broadcast)：也是用户自定义发送和接收的一种广播，区别在于广播发出后，广播接收者按照优先级(priority)从高到低依次接收，并且优先级高的接收到广播后，可以对广播进行拦截和修改。如果两个广播接收者优先级相同，则动态注册的广播优先级要高于静态注册的广播接收者。发送广播时使用sendOrderedBroadcast()。 4、粘性广播(Sticky Broadcast)：与普通广播不同的是，粘性广播发送后，信息就一直保存在系统的容器内，需要时可直接通过IntentFilter匹配指定的Action获取，无需广播接收者。比如电池电量的广播就是粘性广播。发送粘性广播使用sendStickyBroadcast()注：粘性广播因安全问题，从Android 5.0(API 21)起被弃用。 5、本地广播(Local Broadcast)：Android的广播属于全局广播，可以跨APP通信，只要条件符合，当前APP发出的广播可以被其它APP接收到，也可以接收到其它APP发出的广播。因此存在一定的安全性问题和效率问题。当不存在跨APP通信的需求时，推荐使用Android的本地广播。本地广播有以下几个特性：1) 本地广播仅限APP内发送和接收，更安全高效；2) 本地广播接收者只能动态注册，不能静态注册。 2. 广播有哪两种注册方式？二者有什么区别？ 注册广播有两种方式，一种是在代码中进行动态注册；一种是在清单文件在进行静态注册。 1、动态注册：只有在应用启动后才能接收广播，应该未启动或已关闭则不能接收到广播。这种方式比较节省资源，推荐。 2、静态注册：无论应用处于何种状态，均可以接收到广播。这种方式比较耗费资源，除非有需求，否则不推荐这种方式。 也因此，Android中有些广播是不支持静态注册的，比如锁定屏幕和解锁屏幕的广播，电量变化的广播，时间变化的广播，配置变化的广播。1) android.intent.action.SCREEN_ON2) android.intent.action.SCREEN_OFF3) android.intent.action.BATTERY_CHANGED4) android.intent.action.CONFIGURATION_CHANGED5) android.intent.action.TIME_TICK 3. 不同方式注册的广播，onReceiver()方法里的Context参数相同吗？ 不相同。 静态注册的广播，返回的是ReceiverRestrictedContext； 动态注册的广播返回的是注册时的Context，比如Activity。 本地广播返回的是ApplicationContext。 参考资料Android广播类型汇总 - Carson_Ho]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android组件化技术]]></title>
+    <url>%2F2017%2F12%2F10%2Fandroid%2Fandroid-modularization%2F</url>
+    <content type="text"><![CDATA[参考资料Android组件化方案 Android组件化之终极方案]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Fragment的生命周期]]></title>
+    <url>%2F2017%2F12%2F09%2Fandroid%2FFragment%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%2F</url>
+    <content type="text"><![CDATA[Fragment的生命周期 Fragment常见知识点1. 简述下Fragment的生命周期。 思路：参考代码中的方法注释回答即可。 Fragment从创建到销毁会依次执行以下方法： 1onAttach() → onCreate() → onCreateView() → onActivityCreated() → onStart() → onResume() → onPause() → onStop() → onDestroyView() → onDestroy() → onDetach() onAttach()：Fragment依附于Activity时调用。 onCreate()：Fragment创建时调用。 onCreateView()：Fragment创建视图时调用。 onActivityCreated()：Fragment所依附的Activity完成onCreate()方法时调用。 onStart()：与Activity的onStart()方法绑定。 onResume()：与Activity的onResume()方法绑定。 onPause()：与Activity的onPause()方法绑定。 onStop()：与Activity的onStop()方法绑定。 onDestroyView()：Fragment的布局被移除时调用。 onDestroy()：Fragment被销毁时调用。 onDetach()：Fragment从Activity中移除时调用。 2. 简述下Fragment和Activity的异同。 相同点如下： 都可以配置布局，都有自己的生命周期。 都是可以与用户通过界面交互的组件。 不同点如下： Activity引入于Android 1.0，是系统的基础组件；Fragment引入于Android 3.0，为了对界面和业务逻辑进行拆分，解决Activity承载过重的问题。 Activity功能更强大，是显示控件的基础平台，Fragment使用更灵活，可以把相关控件打包成一个集合。打个比方：Activity相当于公司，Fragment相当于部门领导。 Activity属于重量级组件，需要在清单文件中配置后才可使用，生命周期由系统(ActivityManager)管理；而Fragment属于轻量级组件，依附于Activity内，无需在清单文件中配置，生命周期由Activity(FragmentManager)管理。]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android ADB 常用命令]]></title>
+    <url>%2F2017%2F12%2F09%2Fandroid%2Fandroid-adb%2F</url>
+    <content type="text"><![CDATA[参考资料如果通过adb查看当前显示的activity 显示当前运行的所有设备1adb devices 为当前设置安装应用程序1adb install -r &lt;apk file path&gt; 查询当前应用的包名1adb shell dumpsys activity | findstr mFocusedActivity 根据包名卸载应用1adb uninstall &lt;apk's package name&gt;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[git merge 命令详解]]></title>
+    <url>%2F2017%2F11%2F23%2Fgit%2Fgit-merge%2F</url>
+    <content type="text"><![CDATA[基本语法1git merge &lt;其它分支&gt; 将其它分支合并到当前分支中。合并完成后，其它分支保持不变，当前分支是两个分支合并后的内容。 1git merge &lt;分支1&gt; &lt;分支2&gt; 将分支1合并到分支2中。合并完成后，分支1保持不变，分支2是两个分支合并后的内容。 使用举例12# 将develop的本地分支合并到当前分支上git merge develop 12# 将develop的远程分支合并到当前分支上git merge origin/develop 12# 将develop的本地分支合并到master的本地分支上git merge develop master 12# 将develop的远程分支合并到master的本地分支上git merge origin/develop master]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Kotlin 基础语法]]></title>
+    <url>%2F2017%2F11%2F21%2Fkotlin%2Fkotlin-syntax%2F</url>
+    <content type="text"><![CDATA[字符串模板12var name: String = "haoxueren"var speak: String = "hello, my name is $name" 智能类型转换123if (x is String) &#123; print(x.length) // x is automatically cast to String&#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>Kotlin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android 系统广播]]></title>
+    <url>%2F2017%2F11%2F19%2Fandroid%2Fandroid-broadcast%2F</url>
+    <content type="text"><![CDATA[开机广播android.intent.action.BOOT_COMPLETED 关机广播android.intent.action.ACTION_SHUTDOWN 锁屏广播android.intent.action.SCREEN_OFF 解锁广播android.intent.action.SCREEN_ON]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>BroadcastReceiver</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[怎样监听Fragment对用户是否可见？]]></title>
+    <url>%2F2017%2F11%2F13%2Fandroid%2Ffragment-user-visibile-hint%2F</url>
+    <content type="text"><![CDATA[参考资料Fragment的setUserVisibleHint详解 - CSDN Fragment.onResume()12345678/** * Called when the fragment is visible to the user and actively running. * This is generally tied to Activity.onResume of the containing Activity's lifecycle. */@CallSuperpublic void onResume() &#123; mCalled = true;&#125; 通过Fragment.onResume()方法的注释，我们了解到，Fragment的onResume()方法与其所依附的Activity的onResume()方法是绑定的。也就是说，只有当Activity的onResume()方法执行时，Fragment的onResume()方法才会执行。 当我们使用Fragment与ViewPager组合时，如果Fragment从用户不可见切换到用户可见时，Fragment的onResume()方法并不会调用。也就是说，在Fragment的onResume()方法中，我们无法监听到Fragment对用户可见时的事件。 那么，有没有一个方法可以让我们监听到Fragment的UI对用户是否可见呢？当然是有的，Fragment.setUserVisibleHint()就是负责这个事情的。 Fragment.setUserVisibleHint()12345678/** * Set a hint to the system about whether this fragment's UI is currently * visible to the user. This hint defaults to true and is persistent across * fragment instance state save and restore. */public void setUserVisibleHint(boolean isVisibleToUser) &#123; // 方法源码省略...&#125; 通过Fragment.setUserVisibleHint()方法的注释，我们可以了解到，该方法用来设置当前Fragment的UI对用户是否可见。 当Fragment在ViewPager中使用时，FragmentPagerAdapter会在instantiateItem()和setPrimaryItem()方法中调用Fragment.setUserVisibleHint()方法，从而通知Fragment的界面对用户是否可见。 所以，在Fragment配合ViewPager使用时，我们可以直接在Fragment.setUserVisibleHint()方法中监听当前Fragment对用户是否可见。 Fragment.getUserVisibleHint()1234567/** * @return The current value of the user-visible hint on this fragment. * @see Fragment.setUserVisibleHint(boolean) */public boolean getUserVisibleHint() &#123; return mUserVisibleHint;&#125; Fragment.getUserVisibleHint()方法，用来获取Fragment.setUserVisibleHint()方法中isVisibleToUser参数的值。可以用来判断当前Fragment的UI对用户是否可见。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[龙珠直播招聘启示]]></title>
+    <url>%2F2017%2F11%2F13%2Fwork%2Fjoinus-longzhu-live%2F</url>
+    <content type="text"><![CDATA[岗位职责负责【龙珠直播APP】体育模块的维护及新功能开发。 APP下载地址：http://longzhu.com/app/download 岗位要求1、热爱编程，有自己的作品或博客者优先； 2、三年以上Android开发经验，本科以上学历； 3、有较强的学习能力和沟通能力，有责任心和团队合作精神； 4、拥有良好的Android基础，并能使用Kotlin语言进行新功能开发； 5、熟练掌握MVP架构，能熟练使用RxJava、Dagger、Retrofit等开源框架； 6、能熟练使用 Android Studio/Gradle/Git/SVN 等工具。 7、有良好的编程习惯，熟悉常用的编程原则，能编写出结构清晰高质量的代码。 联系方式简历请发送至：haoxueren@foxmail.com]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>招聘</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[设计模式的六大原则]]></title>
+    <url>%2F2017%2F11%2F08%2Fwork%2Fdesign-pattern-principle%2F</url>
+    <content type="text"><![CDATA[参考资料设计模式之六大原则 单一职责原则SRP：Single Responsibility Principle 单一职责原则：一个软件实体只负责一个功能领域中的相应职责，或者可以定义为：就一个软件而言，应该只有一个引起它变化的原因。 开闭原则OCP：Open-Closed Principle 开闭原则：一个软件实体应当对扩展开放，对修改关闭。即软件实体应尽量在不修改原有代码的情况下进行扩展。 里氏替换原则LSP：Liskov Substitution Principle 里氏代换原则：所有引用基类(父类)的地方必须能透明地使用其子类的对象。 里氏替换原则通俗的来讲就是：子类可以扩展父类的功能，但不能改变父类原有的功能。 依赖倒置原则DIP：Dependency Inversion Principle 依赖倒转原则：抽象不应该依赖于细节，细节应当依赖于抽象。换言之，要针对接口编程，而不是针对实现编程。 接口隔离原则ISP：Interface Segregation Principle 接口隔离原则：使用多个专门的接口，而不使用单一的总接口，即客户端不应该依赖那些它不需要的接口。 迪米特法则LoD：Law of Demeter 迪米特法则：一个软件实体应当尽可能少地与其他实体发生相互作用。 如何降低代码的复杂度？设计模式的本质是隔离变化。 程序員真正的工作是思考——思考解決方案——代碼只是副產品。 “软件构建的核心就是管理复杂度”。–《代码大全》 具体的做法： 要把代码分割成细粒度的函数，然后给这些函数起一个恰当的名字，这是最简单最有效的做法。写代码的时候可以先写成一个函数，然后在过程中，不断地把「不相干的子问题」抽取出来，变成一个单独的函数。 做到极致的效果就是，每个函数，别人只要看到名字和参数列表，就能知道这个函数是干什么的，而且可以自己实现出来。这样一来，代码的复杂度显然就降了下来；读代码的时候，其实大部分时候都是在读函数调用，都是在了解算法的逻辑，而不是细节。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>架构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[如何禁止RecyclerView滑动？]]></title>
+    <url>%2F2017%2F11%2F06%2Fandroid%2Fandroid-recyclerview%2F</url>
+    <content type="text"><![CDATA[参考资料How to disable RecyclerView scrolling? - stackoverflow 解决方案重写LayoutManager的canScrollVertically()或canScrollHorizontally()方法，可以灵活地控制RecyclerView是否可以滑动。这种方法仅仅影响RecyclerView的滑动事件，并不会影响RecyclerView的点击事件和触摸事件。 123456789101112131415161718192021/** * 可禁止/启用RecyclerView滑动的LayoutManager */public class CustomLinearLayoutManager extends LinearLayoutManager &#123; private boolean isScrollEnabled = true; public CustomLinearLayoutManager(Context context) &#123; super(context); &#125; public void setScrollEnabled(boolean isScrollEnabled) &#123; this.isScrollEnabled = isScrollEnabled; &#125; @Override public boolean canScrollVertically() &#123; //Similarly you can customize "canScrollHorizontally()" return isScrollEnabled &amp;&amp; super.canScrollVertically(); &#125;&#125; 使用示例12345// 使用自定义的LayoutManager实现禁止滑动CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(context);recyclerView.setLayoutManager(layoutManager); // 使用自定义的LayoutManagerlayoutManager.setScrollEnabled(false); // 禁止RecyclerView滑动layoutManager.setScrollEnabled(true); // 允许RecyclerView滑动 12345678// 直接重写LinearLayoutManager中的方法禁止垂直滑动linearLayoutManager = new LinearLayoutManager(context) &#123; @Override public boolean canScrollVertically() &#123; // return supre.canScrollVertically(); return isScrollEnabled; &#125;&#125;;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>RecyclerView</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[通过Intent启动外部应用]]></title>
+    <url>%2F2017%2F11%2F06%2Fandroid%2Fandroid-intent-action%2F</url>
+    <content type="text"><![CDATA[跳转到电子市场1234567891011/** * 根据应用包名，跳转到应用市场详情页，若用户未安装电子市场，会抛出异常 * @param context 启动Activity的Context * @param packageName 所需展示的应用包名 */public void startMarketShop(Context context, String packageName) &#123; Uri uri = Uri.parse("market://details?id=" + packageName); Intent intent = new Intent(Intent.ACTION_VIEW, uri); intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); context.startActivity(intent);&#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>Intent</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用Fiddler修改接口返回数据]]></title>
+    <url>%2F2017%2F11%2F04%2Ftools%2Fwindows-fiddler-response%2F</url>
+    <content type="text"><![CDATA[参考资料通过Fiddler肆意修改接口返回数据 选择网址打开Fiddler，访问你要修改的接口，在Fiddler的左侧栏中找到该接口地址，并点击选中该地址： 添加规则在Fiddler右侧栏点击【AutoResponder】选项卡，然后点击【Add Rule】，将选中的地址添加到监控列表中，然后勾选【Enable rules】和【Unmatched requests passthrough】两个复选框： Enable rules：启用规则Unmatched requests passthrough：不匹配规则的请求放行 替换数据选中要修改的接口地址，激活页面底部的【Rule Editor】区域，在【Local file to return or *Action to execute】内输入要返回的文件路径，如输入【d:\test\response.json】，也可以点击右边的下拉箭头，在弹出的列表中选择要执行的动作，配置完成后，点击【Save】保存，再次请求接口地址，就会发现返回的数据已经被替换了。 Find a file：选择一个文件Create New Response：创建一个新的响应*redir:http://example.com ：重定向到指定的网址 如果选择了【Create New Response】，在选择后，需要点击【Save】跳出【AutoResponse】配置对话框，点击【Raw】选项卡，输入新的响应内容，然后点击【Save】保存，保存后关闭对话框即可：]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+        <tag>Fiddler</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用Fidder抓取APP接口]]></title>
+    <url>%2F2017%2F11%2F03%2Ftools%2Fwindows-fiddler-mobile%2F</url>
+    <content type="text"><![CDATA[参考资料如何用Fiddler对Android应用进行抓包 - 百度经验 Fiddler简介Fiddler官网：https://www.telerik.com/fiddler The free web debugging proxy for any browser, system or platform. Fiddler配置打开 Fidder，依次点击：Tools –&gt; Options，打开选项设置界面： 1、点击 Https 选项卡，分别勾选 Capture HTTPS CONNECTs 和 Decrypt HTTPS traffic，并按提示安装证书： 2、点击 Connections 选项卡，勾选 Allow remote computers to connect(端口:8888)，点击 OK: 3、配置完成后，一定要重启 Fiddler 使配置生效。 设置手机代理1、使用 Windows + R 打开运行对话框，输入 cmd 并回车，在弹出的命令行对话框内输入 ipconfig，查询本机的 IPv4 地址：192.168.0.147 2、打开手机的 WIFI 设置界面，为手机设置代理，主机填写电脑的 IP 地址(192.168.0.147)，端口填写 Fiddler 的监听端口(8888)，然后点击确定，就可以通过 Fiddler 监听手机APP的接口数据了。 注：要想通过 Fiddler 监听手机 APP 的接口，需要手机与电脑处于同一局域网内。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+        <tag>Fiddler</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Dagger入门教程(四)：带参数构造方法的注入]]></title>
+    <url>%2F2017%2F11%2F02%2Fdagger%2Fdagger-tutorial-04%2F</url>
+    <content type="text"><![CDATA[业务背景之前教程中的Dagger注入，都是不需要向构造方法传递参数的。但是，需求向构造方法传递参数是非常常见的需求，这应该如何实现呢？ FormatModule12345678910111213141516171819/* * FormatModule：对象提供者 * FormatModule通过构造方法接收参数，共要提供的对象使用 */@Modulepublic class FormatModule &#123; private Date date; public FormatModule(Date date) &#123; this.date = date; &#125; @Provides public String provideFormatDate() &#123; SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA); return dateFormat.format(date); &#125;&#125; ActivityComponent123456789/* * ActivityComponent：注入连接者(连接对象使用者与对象提供者) * 一个注入连接者可以对应多个对象提供者 */@Component(modules = &#123;FormatModule.class&#125;)public interface ActivityComponent &#123; void inject(DaggerActivity activity);&#125; DaggerActivity123456789101112131415161718/* * DaggerActivity：对象使用者 * 一个对象使用者只能对应一个注入连接者 */public class DaggerActivity extends Activity &#123; @Inject String formatDate; @Override protected void onCreate(Bundle savedInstanceState) &#123; super.onCreate(savedInstanceState); setContentView(R.layout.activity_dragger); FormatModule formatModule = new FormatModule(new Date()); DaggerActivityComponent.builder().formatModule(formatModule) .build().inject(DaggerActivity.this); &#125;&#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>Dagger</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Dagger入门教程(三)：三方类无参构造方法的注入]]></title>
+    <url>%2F2017%2F11%2F02%2Fdagger%2Fdagger-tutorial-03%2F</url>
+    <content type="text"><![CDATA[参考资料Dagger2教程三之构造方法带参数的情况 业务背景对于自有类，我们可以通过在构造方法上添加@inject注解实现注入，但对于一些SDK或Jar包中的类，我们是无法修改其源码的，自然也无法在其构造方法上添加注解。这种情况下，我们应该如何使用Dagger注入呢？ 创建DateModule类来提供Date对象1234567891011121314/* * DateModule：Date对象提供者 * 创建DateModule类，通过DateModule类来提供Date对象 * 用来提供Date对象的方法，方法上需要添加@Provides注解 * 该方法只要保证返回值为Date对象即可，方法名不会影响注入结果 */@Modulepublic class DateModule &#123; @Provides // 添加@Provides注解 public Date provideDate() &#123; return new Date(); &#125;&#125; 创建DateComponent类并关联DateModule1234567891011/* * DateComponent：连接Date对象的使用者与提供者 * 创建DateComponent，用来连接DaggerActivity和DateModule * 由于需要通过DateModule来提供Date对象，因此@Component注解中关联DateModule类 * 一个Component可以关联多个Module类，以实现Module中方法的复用 */@Component(modules = DateModule.class)public interface DateComponent &#123; void inject(DaggerActivity activity);&#125; 在DaggerActivity注入Date对象123456789101112131415/* * DaggerActivity：Date对象使用者 */public class DaggerActivity extends Activity &#123; @Inject Date date; // 注：date不能使用private修饰 @Override protected void onCreate(Bundle savedInstanceState) &#123; super.onCreate(savedInstanceState); setContentView(R.layout.activity_dragger); DaggerDateComponent.create().inject(this); &#125;&#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>Dagger</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Dagger注入教程(五)：Dagger注入流程图]]></title>
+    <url>%2F2017%2F11%2F02%2Fdagger%2Fdagger-tutorial-05%2F</url>
+    <content type="text"><![CDATA[Dagger注入流程图对象名称：Person对象提供者：PersonModule对象使用者：PersonActivity注入连接者：PersonComponent]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>Dagger</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[禅道使用说明]]></title>
+    <url>%2F2017%2F11%2F01%2Fwork%2Fzentao-guide%2F</url>
+    <content type="text"><![CDATA[查询指派给我的BUG我的地盘 –&gt; BUG –&gt; 指派给我 按责任人查询BUG]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>禅道</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Dagger入门教程(二)：自有类无参构造方法的注入]]></title>
+    <url>%2F2017%2F11%2F01%2Fdagger%2Fdagger-tutorial-02%2F</url>
+    <content type="text"><![CDATA[参考资料Dagger2教程二之基础使用 业务需求新建一个Person类，使用Dagger将Person类的对象注入到Activity中。 创建Person类，并在构造方法上添加@Inject注解123456789/* * Person：Person对象提供者 */public class Person &#123; @Inject // 构造方法上添加@Inject注解 public Person() &#123; &#125;&#125; 创建PersonComponent，并在类上添加@Component注解12345678/* * PersonComponent：连接Person对象的使用者和Person对象的提供者 */@Component // 在类上添加@Component注解public interface PersonComponent &#123; // 连接Person与DaggerActivity void inject(DaggerActivity activity);&#125; 在DaggerActivity中注入Person对象的示例代码1234567891011121314151617181920/* * DaggerActivity：Person对象的使用者 */public class DaggerActivity extends Activity &#123; /* * person对象要添加@Inject注解 * 且不能使用private权限修饰符 */ @Inject Person person; @Override protected void onCreate(Bundle savedInstanceState) &#123; super.onCreate(savedInstanceState); setContentView(R.layout.activity_dragger); // 使用PersonComponent的子类将Person对象注入DaggerActivity DaggerPersonComponent.create().inject(DaggerActivity.this); &#125;&#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>Dagger</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Clover3：给资源管理器加上标签页]]></title>
+    <url>%2F2017%2F11%2F01%2Ftools%2Fwindows-clover%2F</url>
+    <content type="text"><![CDATA[产品说明Clover 是 Windows Explorer 资源管理器的一个扩展，为其增加类似谷歌 Chrome 浏览器的多标签页功能。 下载地址下载地址：http://cn.ejie.me/uploads/setup_clover@3.4.0.exe]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+        <tag>Windows</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[WhatsInput：使用电脑键盘向手机输入内容]]></title>
+    <url>%2F2017%2F11%2F01%2Ftools%2Fandroid-whatsinput%2F</url>
+    <content type="text"><![CDATA[参考资料隔空打字新玩法：WhatsInput无线键盘 适用平台运行平台：Android 使用说明首先要确保电脑与手机需要处于同一 Wi-Fi 网络下，然后在需要时把输入法切换到 WhatsInput，这时你会看到类似这样的地址： http://192.168.1.100:6688，使用电脑浏览器打开这个地址，就可以通过 PC 键盘在手机端输入了。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[租房注意事项]]></title>
+    <url>%2F2017%2F10%2F31%2Flife%2Frent-room-checklist%2F</url>
+    <content type="text"><![CDATA[售后服务房租能否接受押一付一？ 中途退租有什么流程，收违约金吗？ 房屋质量房间的隔音效果怎么样？ 门结实吗，是否为实体墙？ 通讯服务检查手机信号是否通畅，能否正常接打电话？ 检查无线网信号强度怎么样，下载速度如何？ 基础设施检查窗户玻璃，窗帘、门铃是否正常？ 马桶好用吗，放水和进水速度怎么样？ 卫生间是否有排气扇，是否有暖灯？ 下水道是否正常，排水性能怎么样？ 是否有暖气，暖气费谁来承担？ 有冰箱、洗衣机、微波炉吗？]]></content>
+      <categories>
+        <category>生活</category>
+      </categories>
+      <tags>
+        <tag>租房</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Dagger入门教程(一)：Android使用Gradle配置Dagger]]></title>
+    <url>%2F2017%2F10%2F31%2Fdagger%2Fdagger-tutorial-01%2F</url>
+    <content type="text"><![CDATA[参考资料Dagger官方配置说明 Dagger2教程一之配置 使用Android Gradle配置Dagger2在Gradle配置文件中添加Dagger依赖12345// 在Module的build.gradle中添加dependencies &#123; compile 'com.google.dagger:dagger:2.4' annotationProcessor 'com.google.dagger:dagger-compiler:2.4'&#125; 如果需要使用dagger.android中的类，需要添加以下依赖：1234// dagger.android是dagger的android扩展包compile 'com.google.dagger:dagger-android:2.4'compile 'com.google.dagger:dagger-android-support:2.4' // if you use the support librariesannotationProcessor 'com.google.dagger:dagger-android-processor:2.4' 以上配置针对Gradle版本在2.2以上的用户，Gradle版本在2.2以下的用户，请点击 https://bitbucket.org/hvisser/android-apt 查看配置方法。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>Dagger</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android方法编写规范]]></title>
+    <url>%2F2017%2F10%2F30%2Fwork%2Fcode-method-guide%2F</url>
+    <content type="text"><![CDATA[如何写出一个完美的方法？ 参数校验1、检查每一个参数 业务逻辑1、单一职责原则 异常处理1、每一条语句都要考虑异常 添加注释1、完善注释可极大地提高代码的可读性，降低代码的维护成本]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[代码提交规范]]></title>
+    <url>%2F2017%2F10%2F27%2Fgit%2Fgit-commit-guide%2F</url>
+    <content type="text"><![CDATA[代码提交规范确保每次提交能用一句简单的话说清楚，说不清楚就拆分成多次提交。 1、新增需求请用 [Feature] xxxx 2、重构代码请用 [Refactor] xxxx 3、合并分支请用 [Merge] xxxx 4、修改代码格式请用 [Format] xxxx 5、新增注释等请用 [Comment] xxxx 6、修复Bug请用 [Bug] xxxx (不要描述bug本身，而是描述解决bug的方法) 7、其他非代码相关的请用 [Misc] xxxx]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[如何更改项目的Gradle配置]]></title>
+    <url>%2F2017%2F10%2F27%2Fandroid%2Fapp-gradle-config%2F</url>
+    <content type="text"><![CDATA[业务背景在将GitHub上下载的项目导入Android Studio时，经常卡在build界面，原因是Android Studio在本地找不到项目中配置的Gradle，需求翻墙去下载Gradle。 所以，我们只需要把项目中的Gradle配置更改为本地的Gradle版本，就无需再翻墙下载Gradle，而是直接使用本地已经有Gradle来构建项目了。 我的Gradle配置1、要想知道自己本地的Gradle信息，只要打开一个你可以正常build的项目，打开项目的build.gradle文件，就可以看到构建工具的版本信息：12// 构建工具的版本信息classpath 'com.android.tools.build:gradle:2.2.3' 2、打开/gradle/wrapper/gradle-wrapper.properties文件，就可以找到本地Gradle的版本信息。12// 构建Gradle的版本信息distributionUrl=https\://services.gradle.org/distributions/gradle-3.3-all.zip 替换classpath打开项目的/buidle.gradle文件，替换classpath字段的值：1classpath 'com.android.tools.build:gradle:2.2.3' 替换distributionUrl打开项目的/gradle/wrapper/gradle-wrapper.properties文件，替换distributionUrl字段的值：1distributionUrl=https\://services.gradle.org/distributions/gradle-3.3-all.zip]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Kotlin中的构造方法]]></title>
+    <url>%2F2017%2F10%2F26%2Fkotlin%2Fkotlin-construtor%2F</url>
+    <content type="text"><![CDATA[参考资料Kotlin构造函数 - CSDN 构造方法Kotlin的构造方法分为主构造方法和次构造方法。 主构造方法在类名后，一个类只能有一个主构造方法，当主构造方法无参数时，可以省略constructor关键字不写，但当主构造方法有权限修饰符或注解时，construtor关键字则不能省略。 在主构造方法中声明的变量，可以作为类的全局变量，主构造方法中不能包含任何代码，初始化的代码可以放到以init关键字声明的初始化代码块中。 一个类可以没有次构造方法，也可以有多个次构造方法，次构造方法必须使用constructor关键字声明，次构造方法声明在类中。次构造方法中的变量如想作为全局变量，需要在类中声明。 无参构造方法12345678// 无参构造方法class Person constructor() // 无参构造方法constructor可省略不写&#123; init &#123; // 可以在init代码块中做初始化工作 &#125;&#125; 带参构造方法1234// 带参构造方法class Person constructor(var name: String) &#123; // 在构造方法中声明后可以当作全局变量使用&#125; 多个构造方法1234567891011121314151617// 次构造函数需要直接或间接委托给主构造方法class Person constructor() // 主构造方法在类名后&#123; var name: String = "--" var age: Int = 0 // 直接委托给主构造方法 constructor(name: String) : this() &#123; this.name = name &#125; // 间接委托给主构造方法 constructor(name: String, age: Int) : this(name) &#123; this.age = age &#125;&#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Kotlin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android编程规范]]></title>
+    <url>%2F2017%2F10%2F25%2Fandroid%2Fandroid-promgram-guide%2F</url>
+    <content type="text"><![CDATA[命名规范1、严格遵循见名知义的命名规范 异常处理1、检查所有输入值和返回值 2、每个方法都要考虑异常情况 代码规范1、写小而简单的方法 2、要善用注释提升代码可读性 3、用小方法的组合实现复杂的功能 4、做好封装，避免重复的业务逻辑 5、每写完一小段代码都要及时运行测试 代码改进1、注释是否明确？ 2、命名是否到位？ 3、所在类是否合适？ 4、有没有更好的实现方式？ 5、代码中的异常都处理了吗？ 6、代码中还可能会出现哪些异常？ 自测规范1、网络正常 &amp; 网络异常 2、数据正常 &amp; 数据异常 3、边界值 &amp; 空值 &amp; 异常值 注意事项1、写代码前要先弄清楚产品需求，确认好UI细节，并绘制好代码执行的流程图 2、写代码过程中每写一小段代码都要及时测试，以及时发现问题并修正 3、代码完成后，要认真对照代码改进规范进行复查改进，并进行全面自测 4、对测试过程中出现的BUG，都要认真总结，找出原因并制定解决方案]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>编程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[git log 命令详解]]></title>
+    <url>%2F2017%2F10%2F24%2Fgit%2Fgit-log%2F</url>
+    <content type="text"><![CDATA[参考资料git log进阶：格式化log输出 git log基本语法：git log 1$ git log --help # 打开 git log 帮助文件 12345$ git log # 查看所有提交日志commit 3ed7887e4b77fd3f87392b03d280ff880f663a6e # commit idAuthor: Haoxueren &lt;haoxueren@foxmail.com&gt; # 提交人Date: Mon Oct 23 00:00:21 2017 +0800 # 提交时间Init Commit # 备注信息 12$ git log --oneline # 单选显示提交日志66eb7b4 上传HaoGTD 12$ git log --pretty=oneline # 单选显示提交日志b5d5274bc223b26e58b931359dd2c5d0027097fc 修改并提交 1234567$ git log --graph --oneline # 查看提交日志的时间线* 6dbc220 Merge branch 'master'|\| * 66aaf9e 更新README文件* | 4ecb51c pull|/* b134ad1 提交文件 git reflog语法格式：git reflog 12345$ git reflog # 查看所有提交记录c30b37a HEAD@&#123;0&#125;: checkout: moving from test to masterb5d5274 HEAD@&#123;1&#125;: reset: moving to b5d52748a015fd HEAD@&#123;2&#125;: pull: Fast-forwardc30b37a HEAD@&#123;3&#125;: commit: 提交信息]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android热修复集成方案]]></title>
+    <url>%2F2017%2F10%2F24%2Fandroid%2Fandroid-hotfix%2F</url>
+    <content type="text"><![CDATA[Tinker腾讯热修复平台：http://www.tinkerpatch.com/ Sophix阿里热修复平台：https://www.aliyun.com/product/hotfix]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Hotfix</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用AutoHotKey查询键值]]></title>
+    <url>%2F2017%2F10%2F24%2Fautohotkey%2Fautohotkey-vksc%2F</url>
+    <content type="text"><![CDATA[参考资料Autohotkey如何查看键值vk/sc码 名词解释vk：Virtual Key sc：Scan Code 操作步骤第1步：在AutoHotKey的托盘图标上右键，选择【Open】，打开AutoHotKey控制台： 第2步：在打开的界面中，点击【View &gt; Key history &amp; script info】： 第3步：按下想要查询的键，按【F5】刷新即可查看相应的键值： AHK键值表 key vk sc ` C0 029 \ DC 02B Home 24 147 Right 27 14D Insert 2D 152 Escape 1B 001 Backspace 08 00E CapsLock 14 03A]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>AutoHotKey</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Java对象的克隆]]></title>
+    <url>%2F2017%2F10%2F24%2Fandroid%2Fobject-clone%2F</url>
+    <content type="text"><![CDATA[参考资料Java提高篇：对象克隆（复制） 为什么要克隆对象？Java中，同一个对象，可以先后被多个变量引用，来看一段代码：12345678Student student1 = new Student();student1.setScore(80);Student student2 = student1;student2.setScore(90);int score1 = student1.getScore(); // 90int score2 = student2.getScore(); // 90 以上代码，student2改变了自己的分数，student1并未改变自己的分数，打印结果却显示student1的分数也被改变了。这是因为student1和student2只是两个不同的引用，在内在中实际上指向的是同一个对象。 多个变量引用同一个对象时，其中一个变量改变了对象的属性，其它对象再获取该属性的值，都将是被改变后的值(因为它们共用一个对象)，我们可以通过让不同的变量引用不同的对象，来避免变量间的相互影响。比如引用一个当前对象的副本。 如何克隆一个对象？Object类中克隆方法的源码如下：123456789// Object类的clone()方法源码protected Object clone() throws CloneNotSupportedException &#123; if (!(this instanceof Cloneable)) // 检查是否实现了Cloneable接口 &#123; throw new CloneNotSupportedException("Class doesn't implement Cloneable"); // 抛出异常 &#125; return internalClone(); // 调用native方法创建一个克隆对象&#125; 要克隆一个类，一般步骤如下： 1、被克隆的类需要实现Clonenable接口(该接口为标记接口，不含任何方法) 不实现Cloneable接口的话在调用对象的clone()方法时会抛出CloneNotSupportedException异常 2、重写clone()方法，访问修饰符设为public，并在方法中调用super.clone()方法得到需要的复制对象 3、使用该类的对象调用clone()方法获取当前对象的副本 创建一个可以被克隆的类：123456789101112131415161718192021222324/** 让对象支持克隆方法的示例代码 */public class Person implements Cloneable &#123; public String name; public Person(String name) &#123; this.name=name; &#125; @Override public Person clone() // 修改符改为public，返回值修改为当前对象类型 &#123; try &#123; return (HaoApp) super.clone(); // 转换为当前对象类型 &#125; catch (CloneNotSupportedException e) // 未实现Cloneable接口会抛出异常 &#123; return null; // can not reached &#125; &#125;&#125; 调用克隆方法获取一个克隆对象：1Person clonePerson = person.clone(); // 创建一个克隆对象 浅克隆和深克隆先介绍一下两种不同的克隆方法，浅克隆(ShallowClone)和深克隆(DeepClone)。 在Java语言中，数据类型分为值类型（基本数据类型）和引用类型，值类型包括int、double、byte、boolean、char等简单数据类型，引用类型包括类、接口、数组等复杂类型。浅克隆和深克隆的主要区别在于是否支持引用类型的成员变量的复制，下面将对两者进行详细介绍。 在浅克隆中，如果原型对象的成员变量是值类型，将复制一份给克隆对象；如果原型对象的成员变量是引用类型，则将引用对象的地址复制一份给克隆对象，也就是说原型对象和克隆对象的成员变量指向相同的内存地址。简单来说，在浅克隆中，当对象被复制时只复制它本身和其中包含的值类型的成员变量，而引用类型的成员对象并没有复制。 在深克隆中，无论原型对象的成员变量是值类型还是引用类型，都将复制一份给克隆对象，深克隆将原型对象的所有引用对象也复制一份给克隆对象。简单来说，在深克隆中，除了对象本身被复制外，对象所包含的所有成员变量也将复制。 在Java语言中，如果需要实现深克隆，可以通过覆盖Object类的clone()方法实现，也可以通过序列化(Serialization)等方式来实现。如果引用类型里面还包含很多引用类型，或者内层引用类型的类里面又包含引用类型，使用clone方法就会很麻烦。这时我们可以用序列化的方式来实现对象的深克隆。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android Studio加快Gradle构建速度]]></title>
+    <url>%2F2017%2F10%2F23%2Fandroid%2Fandroid-studio-gradle%2F</url>
+    <content type="text"><![CDATA[参考资料加速Android Studio的Gradle构建速度 记—一加快gradle 构建速度的经验 配置gradle.properties文件打开文件C:\Users\Username\.gradle\gradle.properties，新增或修改成以下内容： 12345org.gradle.daemon=true # 编译时使用守护进程# JVM最大允许分配的堆内存，按需分配 org.gradle.jvmargs=-Xmx5632M -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8org.gradle.parallel=true # 使用并行编译org.gradle.configureondemand=true # 启用新的孵化模式 使用离线编译模式File &gt; Settings &gt; Build, Excutions, Deployment &gt; Gradle 打开Gradle设置界面，选择Offline Work： 切换到Compiler标签，按下图配置编译器：]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Gradle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[git push/pull 命令详解]]></title>
+    <url>%2F2017%2F10%2F23%2Fgit%2Fgit-push%2F</url>
+    <content type="text"><![CDATA[参考资料git push命令 - 易百教程 git push12# 将本地的master分支推送到远程主机origin主机的master分支$ git push origin master 12# 将当前分支推送到远程主机origin主机的develop分支$ git push origin develop 12# 强制推送到远程develop分支$ git push --force origin develop 12# 将当前分支推送到远程的同名分支$ git push origin HEAD git pull]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[git reset 命令详解]]></title>
+    <url>%2F2017%2F10%2F23%2Fgit%2Fgit-reset%2F</url>
+    <content type="text"><![CDATA[参考资料版本回退 - 廖雪峰的官方网站 回退到指定版本语法格式：12# 返回到某个节点，不保留当前修改git reset --hard &lt;commit-id&gt; 12# 返回到某个节点，并保留当前修改git reset --soft &lt;commit-id&gt; 版本号(commit-id)没必要写全，前几位就可以了，Git会自动去找。 123456$ git reflog # 查询版本HEADb5d5274 HEAD@&#123;2&#125;: commit: Your Commit Message$ git reset --hard b5d5274 # 回退到指定版本# git reset --hard HEAD@&#123;2&#125; # 回退到指定版本HEAD is now at b5d5274 Your Commit Message 12345# 回退到当前版本$ git reset --hard HEAD~0 # 可简写为：git reset --hard HEAD# 回退到前一版本$ git reset --hard HEAD~1 # 可简写为：git reset --hard HEAD^]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[git checkout 命令详解]]></title>
+    <url>%2F2017%2F10%2F23%2Fgit%2Fgit-checkout%2F</url>
+    <content type="text"><![CDATA[参考资料撤销修改 - 廖雪峰的官方网站 ### 撤消工作区的修改1git checkout -- &lt;filename&gt; 使用暂存区或版本库中的文件覆盖工作区的文件，就是让这个文件回到最近一次git add或git commit时的状态。 1、如果文件修改后还没有被放到暂存区，只需要执行git checkout -- &lt;filename&gt;可以丢弃工作区的修改，恢复到和远程版本库一模一样的状态。 2、如果文件修改后已经通过git add命令添加到了暂存区，执行git checkout -- &lt;filename&gt;命令将会把文件恢复到与暂存区一模一样的状态。 3、如果文件修改后已经通过git commit命令提交到了版本库，执行git checkout -- &lt;filename&gt;将会把文件恢复到与本地版本库一模一样的状态。 注意：git checkout – . 命令会将工作区的所有文件的修改都撤消。 清空缓存区撤回暂存区所有文件：git reset HEAD撤回暂存区指定的文件：git reset HEAD &lt;filename&gt;删除缓存区指定的文件：git rm --cache &lt;filename&gt; 使用举例12# 撤消工作区所有未暂存的修改git checkout -- . 123# 撤消工作区所有已暂存未提交的修改git reset HEADgit checkout -- .]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Beyond Compare 使用说明]]></title>
+    <url>%2F2017%2F10%2F22%2Ftools%2Fwindows-beyond-compare%2F</url>
+    <content type="text"><![CDATA[参考资料Windows下使用Beyond Compare作为git的比对与合并工具 问题搜索：Beyond Compare 服务中心 Git中配置Beyond Compare打开Git的全局配置文件C:\Users\Username\.gitconfig，添加如下内容： 12345678910[diff] # 将Beyond Compare配置为差异比较工具 tool = BC4[difftool "BC4"] cmd = "\"C:/Program Files/Beyond Compare 4/BComp.exe\" \"$LOCAL\" \"$REMOTE\""[merge] # 将Beyond Compare配置为冲突合并工具 tool = BC4[mergetool "BC4"] cmd = "\"C:/Program Files/Beyond Compare 4/BComp.exe\" \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"" 注意代码中的 / 与 \ .BASE .LOCAL .REMOTE 文件 名称 含义 解释 LOCAL 本地分支 当前所在分支 REMOTE 远程分支 要与当前分支合并的分支 BASE 共同祖先分支 要合并的两个分支的最近的共同祖先版本 BACKUP 冲突文件备份 冲突文件备份 Git中调用Beyond Compare差异比较：git difftool &lt;filename&gt; 冲突合并：git mergetool 使用Beyond Compare合并冲突 使用Beyond Compare合并冲突时，会自动生成BASE、LOCAL、REMOTE、BACKUP几个辅助文件。解决完冲突后，保存合并好的文件，然后关闭Beyond Compare即可。之前生成的辅助文件都会自动删除，但同时会生成一个.orig的文件，里面的内容是解决冲突前的冲突现场。默认该.orig文件不会自动删除，可以使用需要手动删掉。 Beyond Compare常用配置显示行号：View &gt; Line Numbers 设置当前行样式：Tools &gt; Options &gt; Color,Fonts &gt; File Views &gt; Elements:Current &gt; TextColor &amp; Background &gt; Apply Beyond Compare快捷键参考资料：Beyond Compare文本合并快捷键 快捷键 功能 Alt + N 下一个冲突部分 Alt + P 上一个冲突部分 Ctrl + I 文本合并信息 Ctrl + D 选择当前光标行 Ctrl + N 下一个差异部分 Ctrl + P 上一个差异部分 Ctrl + L 采用左边的部分 Ctrl + R 采用右边的部分 Ctrl + B 采用左边+右边 Ctrl + Shift + B 采用右边+左边 Ctrl + Shift + N 下一个差异行 Ctrl + Shift + P 上一个差异行 Ctrl + Shift + L 采用左边的一行 Ctrl + Shift + R 采用右边的一行 Ctrl + Shift + S 当前会话另存为]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用PhotoShop制作GIF动态图]]></title>
+    <url>%2F2017%2F10%2F22%2Fwork%2Fphotoshop_gif%2F</url>
+    <content type="text"><![CDATA[编辑GIF动态图使用Photoshop打开GIF图片后，可以编辑或删除其中的帧，修改完成后，再导出为GIF图片即可。 制作GIF动态图// TODO 将GIF导出为静态图片1、打开Photoshop，依次点击【文件 &gt; 打开…】，选择GIF文件，点击【打开】 2、文件打开后，依次点击【文件 &gt; 脚本 &gt; 将图层导出到文件…】，打开对话框 3、在打开的对话框内，设置【文件名前缀】，不要勾选【仅限可见图层】，最后点击【运行】]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Photoshop</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Markdown使用小技巧]]></title>
+    <url>%2F2017%2F10%2F22%2Fwork%2Fmarkdown_html%2F</url>
+    <content type="text"><![CDATA[自定义文字颜色和大小红色字体1&lt;font color="red"&gt;红色字体&lt;/font&gt; 6号字体1&lt;font size="6"&gt;字体大小&lt;/font&gt; 颜色大小1&lt;font color="#0000ff" size="6"&gt;红色6号字体&lt;/font&gt;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Markdown</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[笔记本触摸版使用指南]]></title>
+    <url>%2F2017%2F10%2F22%2Fwork%2Ftouchpad-guide%2F</url>
+    <content type="text"><![CDATA[触摸板介绍触摸板是由一块能够感应手指运行轨迹的压感板和两个按钮组成，两个按钮相当于标准鼠标的左键和右键。触控板的功能还可扩展为手写板，进行手写汉字输入。 触摸板使用鼠标移动：单指在触摸板上移动 左键单击：单指在触摸板上单击后放开 左键双击：单指在触摸板上双击后放开 右键单击：单击右键按钮后放开 鼠标拖动：单指双击后不放开并移动 鼠标滚动：双指在触摸板上移动 鼠标缩放：双指在触摸板上做扩大或缩小动作 触摸板驱动我使用的是未来人类(Terrans Force T5)，使用驱动精灵无法安装Synaptics驱动，使用360驱动大师可以成功安装触摸板驱动。 触摸板设置依次打开&lt;开始&gt; → &lt;控制面板&gt; → &lt;鼠标&gt; → &lt;装置设定值&gt;，选择&lt;连接外部USB指向装置时禁用内部指向装置&gt;，即可在笔记本接入鼠标时禁用触摸板，防止误操作。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[The APK file does not exist on disk]]></title>
+    <url>%2F2017%2F10%2F18%2Fandroid%2Fapk-not-exist-on-disk%2F</url>
+    <content type="text"><![CDATA[错误描述 The APK file does not exist on disk.Error while Installing APK. 解决方案第一步：点击Gradle标签，打开Gradle projects 第二步：点击刷新图标，刷新Gradle工程，再次运行]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Bug</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[RxLifecycle使用详解]]></title>
+    <url>%2F2017%2F09%2F30%2Fandroid%2Fandroid-rxlifecycle%2F</url>
+    <content type="text"><![CDATA[参考资料RxLifecycle：https://github.com/trello/RxLifecycle RxLifecycle简介随着Android第三库的普及，RxJava和RxAndroid越来越被人熟知，简洁的语法，配合Java8 Lambda表达式，使代码的结构更加清晰，通过线程调度器更容易控制和切换线程，种种优点，使用它的人也越来越多。但是使用不好，很容易导致内存泄露。Rxlifecycle 就是用来解决由于发布了一个订阅后，由于没有及时取消，导致Activity/Fragment无法销毁导致的内存泄露的问题。]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>RxLifecycle</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用map操作符处理嵌套网络请求]]></title>
+    <url>%2F2017%2F09%2F30%2Fandroid%2Frxjava-map-nested%2F</url>
+    <content type="text"><![CDATA[引入RxJava和RxAndroid依赖12compile 'io.reactivex.rxjava2:rxandroid:2.0.1'compile 'io.reactivex.rxjava2:rxjava:2.1.3' RxJava链式操作实现嵌套需求产品需求：先从服务器获取订单号，获取订单号成功后充值，充值成功后更新界面。 123456789101112131415161718192021222324252627282930313233343536Observable.create(new ObservableOnSubscribe&lt;Response&gt;() &#123; @Override public void subscribe(@NonNull ObservableEmitter&lt;Response&gt; emitter) throws Exception &#123; // 从服务器请求订单号 Response response = requestOrderId(); emitter.onNext(response); emitter.onComplete(); &#125;&#125;).subscribeOn(Schedulers.io()).map(new Function&lt;Response, Long&gt;() &#123; @Override public String apply(@NonNull Response response) throws Exception &#123; // 从Response中解析出订单号 Long orderId = parse(response); return orderId; &#125;&#125;).map(new Function&lt;Long, Response&gt;() &#123; @Override public String apply(@NonNull Long orderId) throws Exception &#123; // 使用订单号发起充值请求 Response response = recharge(orderId); return response; &#125;&#125;).map(new Function&lt;Response, Boolean&gt;() &#123; @Override public String apply(@NonNull Response response) throws Exception &#123; // 解析是否充值成功 Boolean isSuccess = parse(response); return isSuccess; &#125;&#125;).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer&lt;Boolean&gt;() &#123; @Override public void accept(Boolean isSuccess) throws Exception &#123; // 在主线程更新界面数据 rechargeTextView.setText("充值结果："+isSuccess); &#125;&#125;);]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>RxJava</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[RxJava中常用的Subject]]></title>
+    <url>%2F2017%2F09%2F30%2Fandroid%2Frxjava-subject-android%2F</url>
+    <content type="text"><![CDATA[参考资料Subject - RxJava官方文档 RxJava中常见的几种Subject Subject简介Subject继承了Observable，又实现了Observer接口，所以说它既是Observable又是Observer，是观察者和被观察者之间的桥梁。从实际应用上讲，Subject也能实现Observable和Observer相同的功能。 PublishSubject订阅者仅能接收到订阅之后发布的事件，无法接收到订阅前发布的事件。 正常结束 异常结束 示例代码1234567891011PublishSubject&lt;Object&gt; subject = PublishSubject.create();// observer1 will receive all onNext and onCompleted eventssubject.subscribe(observer1);subject.onNext("one");subject.onNext("two");// observer2 will only receive "three" and onCompletedsubject.subscribe(observer2);subject.onNext("three");subject.onCompleted(); BehaviorSubject订阅者能接收到订阅前的一个事件(如果没有前一个事件，判断有没有默认值，有的话会接收到默认值)以及订阅后的所有事件。 正常结束 异常结束 示例代码123456// observer will receive all events.BehaviorSubject&lt;Object&gt; subject = BehaviorSubject.create("default");subject.subscribe(observer);subject.onNext("one");subject.onNext("two");subject.onNext("three"); 1234567// observer will receive the "one", "two" and "three" events, but not "zero"BehaviorSubject&lt;Object&gt; subject = BehaviorSubject.create("default");subject.onNext("zero");subject.onNext("one");subject.subscribe(observer);subject.onNext("two");subject.onNext("three"); 123456// observer will receive only onCompletedBehaviorSubject&lt;Object&gt; subject = BehaviorSubject.create("default");subject.onNext("zero");subject.onNext("one");subject.onCompleted();subject.subscribe(observer); 123456// observer will receive only onErrorBehaviorSubject&lt;Object&gt; subject = BehaviorSubject.create("default");subject.onNext("zero");subject.onNext("one");subject.onError(new RuntimeException("error"));subject.subscribe(observer); ReplaySubjectReplaySubject会缓存所有的发射数据，无论观察者何时订阅，Subject都会将所有内容发送给订阅者。 流程图解 示例代码123456789ReplaySubject&lt;Object&gt; subject = ReplaySubject.create();subject.onNext("one");subject.onNext("two");subject.onNext("three");subject.onCompleted();// both of the following will get the onNext/onCompleted calls from abovesubject.subscribe(observer1);subject.subscribe(observer2); AsyncSubject概括的讲就是使用AsyncSubject无论发送多少个数据事件，观察者永远只能接受到最后一个数据(完成事件必须调用)。如果发送数据过程中出现错误，观察者仅仅接受到错误信息。 示例代码123456// observer will receive no onNext events because the subject.onCompleted() isn't called.AsyncSubject&lt;Object&gt; subject = AsyncSubject.create();subject.subscribe(observer);subject.onNext("one");subject.onNext("two");subject.onNext("three"); 1234567// observer will receive "three" as the only onNext event.AsyncSubject&lt;Object&gt; subject = AsyncSubject.create();subject.subscribe(observer);subject.onNext("one");subject.onNext("two");subject.onNext("three");subject.onCompleted();]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>RxJava</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用zip操作符合并网络请求]]></title>
+    <url>%2F2017%2F09%2F30%2Fandroid%2Frxjava-zip-merge%2F</url>
+    <content type="text"></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>RxJava</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[git branch 命令详解]]></title>
+    <url>%2F2017%2F09%2F29%2Fgit%2Fgit-branch%2F</url>
+    <content type="text"><![CDATA[参考资料如何使用Git克隆指定分支的代码 Git查看、删除、重命名远程分支 Git 命令合并分支代码 Remote branch not found in upstream origin 查看所有分支12# 查看所有分支git branch --all 本地分支操作12# 创建本地分支git branch &lt;分支名&gt; 12# 查看本地分支git branch 12# 切换本地分支git checkout &lt;分支名&gt; 12# 重命名本地分支git branch --move &lt;旧分支名&gt; &lt;新分支名&gt; 12# 删除本地分支git branch --delete &lt;分支名&gt; 远程分支操作12# 查看远程分支git branch --remote 12# 克隆指定分支到本地git clone --branch &lt;分支名&gt; &lt;远程仓库地址&gt; 1234# 合并develop分支到master分支git checkout master # 切换到master分支git pull # 更新master分支代码git merge develop # 与develop分支合并 1234# 方法1：删除远程分支git branch --remote --delete origin/branchname# 方法2：删除远程分支git push origin --delete &lt;分支名&gt; 1234# 提交修改到远程分支git add --allgit commit --message "提交信息"git push -u origin &lt;分支名&gt; 修改远程分支名称需求描述：创建一个本地分支Haosir并推送到远程，然后将远程分支Haosir改名为Haoxueren。1234567891011121314151617181920212223$ git branch Haosir # 创建本地分支$ git checkout Haosir # 切换到Haosir分支Switched to branch 'Haosir'$ git push origin Haosir # 将本地分支推送到远程 * [new branch] Haosir -&gt; Haosir$ git branch --remote # 查看远程分支 origin/Haosir origin/master$ git branch --move Haosir Haoxueren # 修改本地分支名称$ git branch # 查看本地分支* Haoxueren master$ git push --delete origin Haosir # 删除远程分支 - [deleted] Haosir$ git push origin Haoxueren # 将本地分支推送到远程 * [new branch] Haoxueren -&gt; Haoxueren]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android Debug]]></title>
+    <url>%2F2017%2F09%2F28%2Fandroid%2Fandroid-debug%2F</url>
+    <content type="text"><![CDATA[参考资料Intellij IDEA 调试功能使用总结 Android Studio 调试技巧(简直太好用) 设置断点在Android Studio中，在要设置断点的行的行号后面的区域单击鼠标即可设置断点。 开始调试 名词解释Step Over：程序向下执行一行代码 Step Into：进入当前行方法内执行(不会进入官方类库的方法) Force Step Into：强制进入当前行方法内执行(可进入所有方法) Step Out：跳出当前方法，返回方法被调用的下一行 Run To Cursor：当设置了多个断点时，可以跳转到下一个断点]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Debug</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android性能优化]]></title>
+    <url>%2F2017%2F09%2F13%2Fandroid%2Fandroid-preformance-optimization%2F</url>
+    <content type="text"><![CDATA[参考资料Android最佳性能实践：布局优化技巧 布局优化 使用&lt;merge&gt;标签减少布局的嵌套 使用&lt;include&gt;标签提取重复的布局代码 使用&lt;ViewStub&gt;标签实现布局的延迟加载 代码优化使用静态方法 合并HTTP请求 避免创建不必要的对象 ListView / GridView缓存优化 避免使用反射 / 枚举 使用progard /zipalign]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android中的线程池]]></title>
+    <url>%2F2017%2F09%2F13%2Fandroid%2Fandroid-thread-pool%2F</url>
+    <content type="text"><![CDATA[线程wait()方法表示，放弃当前对资源的占有权，等啊等啊，一直等到有人通知我，我才会运行后面的代码。 notify()方法表示，当前的线程已经放弃对资源的占有，通知等待的线程来获得对资源的占有权，但是只有一个线程能够从wait状态中恢复，然后继续运行wait()后面的语句；notifyAll()方法表示，当前的线程已经放弃对资源的占有，通知所有的等待线程从wait()方法后的语句开始运行。 Thread.sleep()方法调用目的是不让当前线程独自霸占该进程所获取的CPU资源，以留出一定时间给其他线程执行的机会。 FixedThreadPool线程数量固定，无空闲线程时，任务等待。 CacheThreadPool只有非核心线程，任务进来时，无空闲线程就创建一个。线程闲置指定时间后，则进行回收。 ScheduledThreadPool核心线程数固定，非核心线程数不固定；非核心线程闲置时会被回收； SingleThreadExecutor只有一个核心线程，确保所有的任务都在一个线程中顺序执行]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>线程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[静态方法可以被重写吗？]]></title>
+    <url>%2F2017%2F09%2F13%2Fandroid%2Fjava_static_override%2F</url>
+    <content type="text"><![CDATA[静态方法可以被重写，编程器并不会报错，但静态方法的调用机制与普通方法不同，所以，为避免混淆和，不建议重写父类的静态方法。 前言要了解Java中静态方法的调用机制，首先要弄清Java中的类、类的对象和对象的引用三者的关系，先看如下代码： 1Person tom = new Boy(); 在这段代码中，类为Person，对象为new Boy()，对象的引用为tom。 结论静态方法只与所在类有关，与类的对象和对象的引用都没有关系。结论如下：1、静态方法可以被重写，编译器并不会报错。2、当使用对象的引用调用静态方法时，相当于使用对象的引用所属的类调用该静态方法。3、如果对象为匿名对象，没有引用，则相当于使用该匿名对象的类调用该静态方法。 举例以下代码等价于：Person.study();12Person person = new Person();person.study(); 以下代码等价于：Person.study();12Person boy = new Boy();boy.study(); 以下代码等价于：Boy.study();1new Boy().study();]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android引起内在泄漏的几种情况]]></title>
+    <url>%2F2017%2F09%2F12%2Fandroid%2Fandroid-mermory-leak%2F</url>
+    <content type="text"><![CDATA[内存泄漏的根本原因是生命周期长的对象持有生命周期短的应用的引用，从而造成短生命周期的对象无法被及时回收。 Context使用不当造成内存泄漏比如将Activity当作Context传入静态对象时，会造成内存泄漏。 Handler内部类造成内存泄漏Activity中非静态的Handler内部类，默认会持有Activity对象的引用。当Activity退出时，如果还有未处理完毕的消息，则会造成Activity无法被及时回收。 同理，其它非静态内部类，如果该被静态对象引用，也会造成内存泄漏。 资源未关闭引起的内存泄漏在使用BroadcastReceiver、ContentProvider、Bitmap、Cursor、File、Stream等资源时，Java虚拟机不能对这些资源进行回收，使用完毕要记得释放资源。]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用位移动画实现控件抖动效果]]></title>
+    <url>%2F2017%2F09%2F11%2Fandroid%2Fshake-animation%2F</url>
+    <content type="text"><![CDATA[关键字：AnimationUtils | TranslateAnimation 方法一：使用资源文件加代码实现：12345678910&lt;!-- 使用资源文件定义位移动画 --&gt;&lt;!-- New File:/res/anim/shake.xml --&gt;&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;translate xmlns:android="http://schemas.android.com/apk/res/android" android:fromXDelta="0" android:toXDelta="10" android:duration="60" android:repeatCount="20" android:repeatMode="reverse" android:fillAfter="true" /&gt; 12Animation animation = AnimationUtils.loadAnimation(context, R.anim.shake);view.startAnimation(animation); // 启动位移动画 方法二：全部使用代码实现：1234567891011121314/** * 使用位移动画实现视图抖动的模板代码； */public void shakeView(View view)&#123; TranslateAnimation animation = new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0.1f, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0); animation.setRepeatCount(100); animation.setRepeatMode(Animation.REVERSE); animation.setFillAfter(true); animation.setDuration(50); view.startAnimation(animation);&#125;]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>动画</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android自定义属性]]></title>
+    <url>%2F2017%2F09%2F11%2Fandroid%2Fview-custom-attrs%2F</url>
+    <content type="text"><![CDATA[关键字：declare-styleable | TypedArray 在 res/values 目录下新建 attrs.xml 文件1234567&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;resources&gt; &lt;declare-styleable name="AttrName"&gt; &lt;attr name="attr01" format="string" /&gt; &lt;attr name="attr02" format="float" /&gt; &lt;/declare-styleable&gt;&lt;/resources&gt; 在自定义View的构造方法中读取自定义属性12345678public CustomView(Context context, AttributeSet attrs, int defStyleAttr)&#123; super(context, attrs, defStyleAttr); TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.AttrName); String attr01 = attributes.getString(R.styleable.AttrName_attr01, null); float attr02 = attributes.getFloat(R.styleable.AttrName_attr02, 0.0f); attributes.recycle();&#125; 在自定义的LayoutParams中读取自定义属性12345678public CustomLayoutParams(Context context, AttributeSet attrs)&#123; super(context, attrs); TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.AttrName); String attr01 = attributes.getString(R.styleable.AttrName_attr01, null); float attr02 = attributes.getFloat(R.styleable.AttrName_attr02, 0.0f); attributes.recycle();&#125;]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>自定义控件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[在布局中测量控件的宽高]]></title>
+    <url>%2F2017%2F09%2F11%2Fandroid%2Fmeasure-view-size%2F</url>
+    <content type="text"><![CDATA[关键字：ViewTreeObserver | OnGlobalLayoutListener 在布局中测量控件的宽高123456789101112131415/** * 使用ViewTreeObserver获取View的宽高； */view.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener()&#123; /** 测量控件的宽高 */ @Override public void onGlobalLayout() &#123; Point point = new Point(); point.x = view.getWidth(); point.y = view.getHeight(); view.getViewTreeObserver().removeOnGlobalLayoutListener(this); &#125;&#125;);]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[绑定远程服务并调用远程服务中的方法]]></title>
+    <url>%2F2017%2F09%2F11%2Fandroid%2Fandroid-aidl%2F</url>
+    <content type="text"><![CDATA[AIDL：Android Interface Definition Language &gt; Android接口定义语言； IPC：Inter Process Communication &gt; 内部进程通讯； Local-side IPC implementation：本地内部进程通信的实现类； 绑定远程服务开发中很少用到，但面试中经常被问到。属于比较高级的概念； 本地服务：同一个应用程序内的服务属于本地服务； 远程服务：当前应用程序外的服务属于远程服务； 服务同Activity一样，也可以通过隐式意图启动； 绑定远程服务并调用远程服务中的方法的步骤： 创建一个服务，并在清单文件中配置服务的名称及，以方便隐式调用：12345&lt;service android:name="com.haoxueren.remote.MyService" &gt; &lt;intent-filter&gt; &lt;action android:name="com.haoxueren.remote.service" /&gt; &lt;/intent-filter&gt;&lt;/service&gt; 把服务中接口文件的后缀名修改为.aidl，并去除接口文件中的权限修饰符(public)123456789// 文件名：BinderInterface.aidlpackage com.haoxueren.remote;/** * 用接口BinderInterface包装MyBinder，从而实现只暴露MyBinder类中指定的方法； */interface BinderInterface&#123; void callServiceMethod();&#125; 刷新工程，找到gen目录下自动生成的该接口的.java文件，找到Local-side IPC implementation stub class.对应的类Stub，让IBinder的实现类继承Stub;1234567891011121314151617181920212223242526272829/** Local-side IPC implementation stub class. */public static abstract class Stub extends android.os.Binder implements com.haoxueren.remote.BinderInterface&#123;...&#125;把接口的aidl文件复制到调用者的项目中，注意要保持包名不变：包名：package com.haoxueren.remote;在调用者的项目中通过隐式意图绑定服务：public void bind(View view)&#123; Intent intent = new Intent(); intent.setAction("com.haoxueren.remote.service"); context.bindService(intent, new MyServiceConnection(), Context.BIND_AUTO_CREATE);&#125;把传递来的 IBinder对象转换为BinderInterface对象：private BinderInterface binder;@Overridepublic void onServiceConnected(ComponentName name, IBinder service)&#123; binder = Stub.asInterface(service);&#125;利用binder对象调用远程服务中的方法：public void call(View view)&#123; try &#123; binder.callServiceMethod(); &#125; catch (RemoteException e) &#123; e.printStackTrace(); &#125;&#125;]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>AIDL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[解决autoLink属性导致onItemClickListener失效的问题]]></title>
+    <url>%2F2017%2F09%2F11%2Fandroid%2FautoLink-bug%2F</url>
+    <content type="text"><![CDATA[解决过程在ListView条目中，有个TextView设置了autoLink，同时该条目设置了条目点击事件listView.setOnItemClickListener()，但运行测试发现，ListView中有autoLink的条目的点击事件都失效了。 百度搜索「autoLink onItemClickListener」，从StackOverFlow上查询到了解决方案：即在条目的根布局上添加一个属性就可以了，android:descendantFocusability=&quot;blocksDescendants&quot;，意思是禁止子View拦截父View的点击事件。 设置了descendantFocusability规则后，ListView的条目点击事件就可以正常执行了，autoLink也可以正常点击。 只要搜索用得好，没有bug修不了。 参考资料ListView with TextView autoLink not receiving OnItemClickListener]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Bug</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android体系结构]]></title>
+    <url>%2F2017%2F09%2F11%2Fandroid%2Fandroid-structure%2F</url>
+    <content type="text"><![CDATA[]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Windows常用命令详解]]></title>
+    <url>%2F2017%2F09%2F10%2Fwork%2Fwindows-cmd%2F</url>
+    <content type="text"><![CDATA[使用Win + R调出运行对话框，输入相应的DOS命令，回车即可执行。 运行程序打开记事本：notepad 打开画图：mspaint 打开计算器：calc 打开控制面板：control 打开任务管理器：taskmgr 打开任务计划程序：taskschd.msc 打开文件 注：命令不区分大小写 打开磁盘：start c: 打开当前目录：start . 打开指定目录：start d:/suning 打开网址：start www.baidu.com 网络连接查看所有网络连接：netsh interface show interface 查看无线网络连接：netsh interface show interface name=&quot;无线网络连接&quot; 启用无线网络连接：netsh interface set interface name=&quot;无线网络连接&quot; admin=enabled 禁用无线网络连接：netsh interface set interface name=&quot;无线网络连接&quot; admin=disabled 快捷方式1、删除快捷方式小箭头123&gt;&gt;&gt; cmd /k reg delete &quot;HKEY_CLASSES_ROOT\lnkfile&quot; /v IsShortcut /f&gt;&gt;&gt; taskkill /f /im explorer.exe&gt;&gt;&gt; start explorer.exe 2、添加快捷方式小箭头123&gt;&gt;&gt; cmd /k reg add &quot;HKEY_CLASSES_ROOT\lnkfile&quot; /v IsShortcut /f&gt;&gt;&gt; taskkill /f /im explorer.exe&gt;&gt;&gt; start explorer.exe 映射盘符 要映射的盘符不能与现有盘符重复 1、将文件夹映射成盘符 12# 将文件夹 D:\Suning 映射成 A 盘&gt;&gt;&gt; subst A: D:\Suning 2、解除文件夹与盘符的映射12# 解除 A 盘与文件夹的映射&gt;&gt;&gt; subst A: /D]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Windows</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android屏幕适配方法]]></title>
+    <url>%2F2017%2F09%2F04%2Fandroid%2Fandroid-screen-adaptive%2F</url>
+    <content type="text"><![CDATA[关键字：资源文件 | 点9图 | 百分比 | 代码适配 代码适配在代码中动态设置控件的宽高。 图片适配根据不同的分辨率切多套图，做成.9图 基本概念像素(px)： 分辨率： 屏幕尺寸： 布局适配尺寸适配图片适配：.9图 权重适配线性布局及其子类中的控件支持按权重(weight)分配大小，可以利用这个特性进行屏幕适配。 支持权重的控件：LinearLayou、RadioGroup等(具体可查看LinarLayout的子类)。]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[「曹」字用五笔怎么打？]]></title>
+    <url>%2F2017%2F09%2F03%2Fwork%2Fword-figure-wubi%2F</url>
+    <content type="text"><![CDATA[曹：拼音：cao，五笔编码：GMAJ 参考资料曹五笔怎么打？ 五笔拆字图查询 笔画图解曹，五笔全码为：GMAJ，三级简码为：GMA 键位详解]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>五笔</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Linux grep 使用案例]]></title>
+    <url>%2F2017%2F08%2F28%2Fwork%2Flinux-bash-grep%2F</url>
+    <content type="text"><![CDATA[GREP是Linux上一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹配的行打印出来(Windows上可以使用git bash执行grep命令)。 参考资料grep命令 - Linux命令大全 在文件中搜索文本工具grep命令用法 GREP命令简介GREP：Global search Regular Expression and Print out the line GREP使用举例 匹配字符串与文件名中或包含空格，需要用双引号引起来。 参数 作用 举例 * 从指定文件中搜索 grep pattern file.md * 从多个文件中搜索 grep pattern file1 file2 * 从当前目录所有文件中搜索 grep pattern * * 从指定类型的文件中搜索 grep pattern *.md -n 显示匹配内容及所在的行号 grep pattern *.md -n -c 统计匹配行的个数 grep pattern *.md -c -h 不显示匹配内容所有的文件名 grep pattern *.md -h -l 列出包含搜索内容的文件名 grep pattern *.md -l -L 列出不包含搜索内容的文件 grep pattern *.md -L -v 仅显示不包括匹配内容的行 grep pattern *.md -v -i 匹配不区分大小写 grep pattern *.md -i -o 只输出匹配到的部分 grep pattern *.md -o -w 匹配整个单词 grep pattern *.md -w -E pattern为正则表达式 grep -E [a-z]+[:]{1} *.md -r 递归搜索当前目录所有文件 grep pattern . -r -A 输出匹配行之后的3行 grep pattern *.md -A 3 -B 显示匹配结果之前3行 grep pattern *.md -B 3 egrep pattern为正则表达式 egrep \\b[a-z]{3}\\b *.md –color 高亮匹配关键字 grep pattern *.md --color –include 包含指定的文件 grep pattern . -r --include *.{java,kt} –exclude 排除指定的文件 grep pattern . -r --exclude *.{class,xml}]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[TotalCMD使用指南]]></title>
+    <url>%2F2017%2F08%2F27%2Ftools%2Fwindows-totalcmd%2F</url>
+    <content type="text"><![CDATA[Total Commander是一款功能非常强大的资源管理器，仅使用快捷键就可以完成对文件的日常操作，上手后可以极大地提高工作效率。 参考资料Total Commander官方网站 Total Commander使用教程 最易读的Total Commander教程 TotalCMD配置下载注册补丁：Total Commander 9.0a wincmd.key 更改文字样式：配置 &gt; 选项 &gt; 显示 &gt; 字体 文件提示信息：配置 &gt; 选项 &gt; 显示(提示信息) 工具栏快捷方式：在工具栏上右键，依次[更改]，打开[更改工具栏]，依次点击：添加 &gt; 更改 &gt; 插入文件名，然后选择一个文件图标，点击确定。 常用快捷键当前版本：Total Commander 9.0a TotalCMD的帮助文档位于/TotalCMD/TOTALCMD.CHM。 在TotalCMD界面，按 F1 打开帮助文件，依次打开 Operation &gt; Keyboard Layout 即可打开快捷键说明文档。 快捷键 说明 快捷键 说明 F3 View(查看) Ctrl + D 打开收藏夹 F4 Edit(编辑) Ctrl + S 搜索文件 F5 Copy(复制) Ctrl + T 新建窗口标签 F6 Move(移动) Ctrl + Z 为文件/目录添加注释 F7 新建文件夹 Ctrl + U 交换左右侧窗口 F8 Delete(删除) Ctrl + L 统计选中文件的大小 Backspace 返回上级目录 Ctrl + W 关闭当前标签 Shift + F6 重命名 Ctrl + Num* 锁定当前标签 Shift + F10 打开右键菜单 Ctrl + Shift + \ 返回根目录 Shift + Esc 最小化TotalCMD Ctrl + Tab 切换标签 Alt + Left 上一次目录 Ctrl +Shift + F1 切换为列表/图片模式 Alt + Right 下一个目录 Ctrl +Shift + C 复制文件全路径 Alt + Down 访问历史记录 Ctrl + M 批量重命名 Alt + F5 压缩文件 Ctrl +Shift + F5 创建文件快捷方式到另一栏 Alt + F6 解压缩文件 Shift + F4 新建文件 Alt + +/- 选中/取消选中同类型文件 Ctrl +Shift + W 关闭其它窗口 Alt + Enter 打开文件属性窗口 Alt + F4 Exit(退出)]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+        <tag>TotalCMD</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Service的生命周期]]></title>
+    <url>%2F2017%2F08%2F20%2Fandroid%2FService%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%2F</url>
+    <content type="text"><![CDATA[常见问题1. 说说Service的两种启动方式及其生命周期。 可以通过Context.startService()和Context.bindService()两种方式启动Service。 在通过Context.startService()启动Service时，会依次调用Service的onCreate()→onStartCommand()方法，通过Context.stopService()或Service.stopSelf()停止Service后，会调用onDestory()方法。 在通过Context.bindService()启动Service()时，会依次调用Service的onCreate()→onBind()方法，在通过Context.unbindService()解除绑定或Service所绑定的Context不存在时，Service会被终止，此时会调用onDestory()方法。 在启动Service时，无论startService()执行多少次，系统都只会创建一个Service实例。onCreate()方法也只会被调用一次，但onStartCommand()方法每次都会被调用，终止Service时，也只需要调用一次stopService()或stopSelf()。 同理，在启动Service时，无论bindService()执行多少次，系统都只会创建一个Service实例。onCreate()方法也只会被调用一次，但bindService()方法每次都会被调用，终止Service时，也只需要调用一次unbindService()。 2. startService()与bindService()有什么区别？ 1.1 Context.startService()启动Service后，Context与Service无关联，Service独立于Context在后台运行，直到被终止[stopService() / stopSelf()]或被系统强制回收。 1.2 Context.bindService启动Service后，Service与Context便形成绑定关系，除了调用unbindService()解除绑定会导致Service终止，启动Service的Context被终止，也会导致绑定的Service被终止。 2.1 startService()启动Service时，对应onStartCommand()，终止Service时，对应stopService()或stopSelf()。 2.2 bindService启动Service时，对应的是onBind()，终止Service时，对应的是unbindService()。 3.1 Context.startService启动的Service，无法直接与Context进行交互，可以通过BroadcastReceiver或EventBus进行交互。 3.2 Context.bindService启动的Service，可以通过ServiceConnection(Binder)实现Context与Service间的交互。 3. 如果一个Service即被startService()又被bindService()，生命周期是怎样的？ startService()和bindService()可以同时启动同一Service，执行时会回调对应的onStartCommand()或onBind()，但onCreate()只会被执行一次，不会被重复执行。 在停止Service时，即需要调用stopService()，又需要调用unbindService()，没有先后顺序要求，只有两个方法都执行完毕后，才会执行Service的onDestroy()，onDestroy()只会被执行一次。 4. 如何保证Service不被杀死？ 在onStartCommand()方法中返回START_STICKY。这种情况下，当内存不足需要回收该Service时，系统会将该Service标记为started状态，并在合适的时机重新调用onStartCommand()重启该Service，这种情况下不会保留onStartCommand()方法中的intent对象(intent对象为null)。如需在重启Service时保留onStartCommand()中的intent对象，可以返回START_REDELIVER_INTENT，此时则会保留intent最近一次的值，并传入到onStartCommand()方法中。 提高该Service在所有Service中的优先级。可以在AndroidManifest.xml中为每一个Service配置一个优先级，数值越大，优先级越高。如：&lt;service&gt; &lt;intent-filter android:priority=&quot;1000&quot;/&gt;&lt;/service&gt; 将Service设置为前台Service，Service默认在后台运行，但调用Service.startForeground()即可将将该Service设置为前台Service，从而提高该Service的进程优先级。当系统的进程空间紧张时，会按照进程优先级依次回收，Android系统的进程优先级如下：(1) 前台进程(foreground_app)(2) 可见进程(visible_app)(3) 次要服务进程(secondary_server)(4) 后台进程(hidden_app)(5) 内容提供者进程(content_provider)(6) 空进程(empty_app) 在Service的onDestroy()方法里发送一个自定义广播，在广播的onReceiver()内重新启动该Service。 监听开机广播，开机时自动启动Service。 参考资料Android中startService和bindService的区别 Android Service两种启动方式详解（总结版） Android开发之如何监听让Service不被杀死]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[你正在寻找的东西也在寻找你]]></title>
+    <url>%2F2017%2F08%2F17%2Fstudy%2F%E4%BD%A0%E6%AD%A3%E5%9C%A8%E5%AF%BB%E6%89%BE%E7%9A%84%E4%B8%9C%E8%A5%BF%E4%B9%9F%E5%9C%A8%E5%AF%BB%E6%89%BE%E4%BD%A0%2F</url>
+    <content type="text"><![CDATA[你正在寻找的东西也在寻找你。What you seek is seeking you. 鲁米简介原文地址：http://mp.weixin.qq.com/s/k-RGwGmuEhTcMdxZYx-CFQ 鲁米用最优美的方式，阐述了信仰的智慧。即便是在当今社会，每个人读到他的词句还是或多或少的能够联系到自己的生活。 莫拉维•贾拉鲁丁•鲁米（Molana Jalaluddin Rumi），是古波斯著名诗人和神秘主义者，对伊斯兰文化甚至世界文化都产生了很大的影响。鲁米出生于1207年，距今已经800多年了。他出生在现在是阿富汗的地方。贾拉鲁丁则是他的称号，意思是宗教圣人，后来他也被尊称为莫拉维，意思是大师、长老。 鲁米的诗充满了灵性，哲理和神秘的美感，有种穿越时空的感觉，读他的诗，你丝毫不会觉得是在读一个古人写的东西。这实在是很神奇的地方。鲁米在波斯文学史上享有极高的声誉，集诗人和神秘主义者于一身的鲁米，受到过诸如黑格尔、柯勒律治、歌德、伦伯朗、教皇约翰二十二世等人的赞誉。 鲁米名言伤口是光进入你内心的地方。The wound is the place where the Light enters you. ——Rumi 你正在寻找的东西也在寻找你。What you seek is seeking you. ——Rumi 你的任务不是去寻找爱，而只是寻找并发现你内心构筑起来的反抗它的障碍。Your task is not to seek for love, but merely to seek and find all the barriers within yourself that you have built against it. ——Rumi 不要悲伤。你失去的任何东西都会以另一种形式回来。Don’t grieve. Anything you lose comes round in another form. ——Rumi 你生而有翼，为何喜欢爬行？You were born with wings, why prefer to crawl through life? ——Rumi 情人们并不最终相遇某处。他们一直在彼此之中。Lovers don’t finally meet somewhere. They’re in each other all along. ——Rumi 宇宙中的一切都在你体内，向内寻求一切的答案。Everything in the universe is within you. Ask all from yourself. ——Rumi 忘掉安全感，到你所害怕的地方去生活。摧毁你的名声，作一个声名狼藉的人。Forget safety，Live where you fear to live. Destroy your reputation ,Be Notorious. ——Rumi 昨天的我聪明，想去改变这个世界。今天的我智慧，正在改进自我。Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing Myself.— Rumi 我涅槃，我重生。I died. I am reborn.— Rumi 当我失望无比后，我感到鼓舞；当我毁灭坍塌，我能够愈合；当我寂静坚定如同大地，我才言语，用如同闪电般的低音诉与每一人。The minute I’m disappointed, I feel encouraged. When I’m ruined, I’m healed. When I’m quiet and solid as the ground, then I talk the low tones of thunder for everyone. ——Rumi 只有用眼睛相爱的人才会分开…对于那些用心和灵魂在相爱的人来说，这个世界没有离别。Goodbyes are only for those love with eyes…Because for those who love with heart and soul there is no such thing as separation. 你还不知道吗？是你发出的光点亮了这个世界。Don’t you know yet? It is your light that lights the worlds. 我们都从虚空星辰般旋转四散的尘埃中诞生。We come spinning out of nothingness, scattering stars like dust. 你感受到的痛苦是信使，倾听他们带来的信息。These pains you feel are messengers. Listen to them. 不要担心你的生活在发生颠覆。你怎知道过去的生活一定比将来的要好？Do not worry that your life is turnning upside down. How do you know that the side you are used to is better than the one to come?]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>阅读</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[鲁米《客栈》]]></title>
+    <url>%2F2017%2F08%2F17%2Fstudy%2F%E9%B2%81%E7%B1%B3%EF%BC%9A%E5%AE%A2%E6%A0%88%2F</url>
+    <content type="text"><![CDATA[坦然接受生命中发生的每一件事，并从中领悟生命的意义。因为你生命中发生的每一件事，都是上天对你的指导。 英文原文This being human is a guest house.Every morning a new arrival. A joy, a depression, a meanness,some momentary awareness comes as an unexpected visitor. Welcome and entertain the all!Even if they’re a crowd of sorrows,who violently sweep your house empty of its furniture.Still, treat each guest honorably. He may be clearing you out for some new delight.The dark thought, the shame, the malice,meet them at the door laughing,and invite them in. Be grateful for whoever comes,because each has been sent as a guide from beyond. 中文翻译人的一生好比客栈， 每个早晨都有新的来客。 喜乐，沮丧，卑劣，灵感的瞬间， 像是意外的访客翩然到来。 欢迎并热情招待他们每一个！ 即使是一群悲伤之徒， 恣意破坏你的屋舍， 搬空所有家具， 仍然要待之以礼。 因为他可能带来某些崭新的欢悦， 洗净你的心灵。 无论是黑暗的思想，羞愧或恶念， 都要在门口笑脸相迎， 欢迎它们进入你的内心。 不管来者是谁都要心存感激， 因为每位访客 都是上天赐给我们的向导。]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>阅读</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[AutoHotKey实现快速搜索功能]]></title>
+    <url>%2F2017%2F08%2F15%2Fautohotkey%2Fautohotkey-fanyi%2F</url>
+    <content type="text"><![CDATA[使用AutoHotKey定义热键实现常用搜索：百度搜索、必应搜索、搜狗搜索、Google搜索、GitHub搜索、Stackoverflow搜索、稀土掘金搜索、简书搜索等等。 使用百度翻译查词选中要翻译的单词 / 句子，按Alt + Q1234!q::Send, &#123;Ctrl Down&#125;c&#123;Ctrl Up&#125;Run, http://fanyi.baidu.com/?aldtype=16047#en/zh/%clipboard%Return 使用微软Bing搜索https://cn.bing.com/search?q=haoxueren 使用Google搜索https://www.google.com/search?q=haoxueren 使用GitHub搜索https://github.com/search?q=haoxueren 使用Stackoverflow搜索https://stackoverflow.com/search?q=haoxueren 使用稀土掘金搜索https://juejin.im/search?query=haoxueren]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>AutoHotKey</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[HaoGTD 可能是最好用的日程管理软件]]></title>
+    <url>%2F2017%2F08%2F14%2Ftools%2Fandroid-haogtd%2F</url>
+    <content type="text"><![CDATA[点击下载 HaoGTD for Android]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>HaoApp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Kotlin与Java相互调用]]></title>
+    <url>%2F2017%2F08%2F02%2Fkotlin%2Fkotlin-java-invoke%2F</url>
+    <content type="text"><![CDATA[Kotlin的设计过程中就考虑到了与Java的互操作性。在Kotlin中可以直接调用既有的Java代码, 反过来在Java中也可以很流畅地使用Kotlin代码。 参考资料Kotlin和Java 相互调用 Kotlin 调用 Java一、大多数Java代码，可以直接调用：12345// Kotlin调用Java代码fun demo() &#123; val list = ArrayList&lt;string&gt;() list.add("hello world")&#125; 二、一些特殊的调用规则 返回值为void的方法, 在 Kotlin 中调用时将返回 Unit。 符合 Java 的 Getter 和 Setter 规范的方法，在 Kotlin 中会被识别为属性。 某些 Kotlin 关键字在 Java 中是合法的标识符，如：in、object、is等，在Kotlin中使用时要使用反引号转义，如 `object`。 12345678910111213141516// Java 代码public class Person &#123; private String name; public void speak() &#123; System.out.println("My name is " + name); &#125; public String getName() &#123; return name; &#125; public void setName(String name) &#123; this.name = name; &#125;&#125; 123456在Kotlin中调用Java代码fun callJava() &#123; val person = Person() person.name = "Haosir" person.speak()&#125; Java调用Kotlin可以直接通过 getter / setter 方法对 Kotlin 类的属性取值或赋值； 123456// Kotlin代码class AlphaGo(var version: String) &#123; fun play() &#123; print("AlphaGo $version is play GO") &#125;&#125; 123456// 在Java中调用Kotlin代码public void callKotlin() &#123; AlphaGo alphaGo = new AlphaGo("3.0"); String version = alphaGo.getVersion(); alphaGo.play();&#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Kotlin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Kotlin中的for循环]]></title>
+    <url>%2F2017%2F08%2F02%2Fkotlin%2Fkotlin-for-iterate%2F</url>
+    <content type="text"><![CDATA[Kotlin中for循环的各种写法。 参考资料五分钟学会 Kotlin 语法 Kotlin: Iterate through a JSONArray Kotlin区间遍历123456// 正序遍历for(i in 0..9)&#123; print(i)&#125;&gt;&gt;&gt; 0123456789 12345for (i in IntRange(0, 9)) &#123; print(i)&#125;&gt;&gt;&gt; 0123456789 123456// 倒序遍历for (i in 9 downTo 0) &#123; print(i)&#125;&gt;&gt;&gt; 9876543210 123456// 指定步长for (i in 0..9 step 3) &#123; print(i)&#125;&gt;&gt;&gt; 0369 123456// 不包括其结束元素for (i in 0 until 9) &#123; print(i)&#125;&gt;&gt;&gt; 012345678 Kotlin遍历数组12345// 遍历数组元素val array = arrayOf(1, 2, 3, 4, 5)for (item in array) &#123; print(item)&#125; 12345// 带索引遍历数组val array = arrayOf(1, 2, 3, 4, 5)for (i in array.indices) &#123; println(i.toString() +"-&gt;"+ array[i])&#125; 12345// 遍历元素(带索引)val array = arrayOf(1, 2, 3, 4, 5)for ((index, item) in array.withIndex()) &#123; println(index.toString() + "-&gt;" + item)&#125; 12345// forEach遍历数组val array = arrayOf(1, 2, 3, 4, 5)array.forEach &#123; print(it) &#125;&gt;&gt;&gt; 12345 12345// forEach增强版val array = arrayOf(1, 2, 3, 4, 5)array.forEachIndexed &#123; index, item -&gt; println(index.toString() + "：" + item)&#125; Kotlin遍历JSONArray1234for(i in 0..(jsonArray.length() - 1)) &#123; val item = jsonArray.get(i) &#125;]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Kotlin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[执行Python脚本时不弹黑框]]></title>
+    <url>%2F2017%2F07%2F23%2Fpython%2F%E5%9C%A8%E5%90%8E%E5%8F%B0%E6%89%A7%E8%A1%8CPython%E8%84%9A%E6%9C%AC%2F</url>
+    <content type="text"><![CDATA[使用pythonw执行Python脚本，或将脚本后缀名改为.pyw，都可以完美实现不弹黑框。 参考资料运行python程序不显示cmd的方法 解决方案在运行Python脚本的时候，会弹出一个控制台黑框，要想不显示其实很简单： 方法1：使用pythonw xxx.py命令运行Python脚本 方法2：将.py改成.pyw (这个其实就是使用脚本解析程序pythonw.exe) 详细资料Try changing the file extension to .pyw. Double-clicking a .pyw will use pythonw.exe instead of python.exe. python.exe 运行的时候有个控制台窗口，如果你的python代码有gui，用python.exe运行就会跑出一个黑窗口，如果用phthonw.exe的话就没有了。跟 python.exe 比较起来，pythonw.exe 有以下的不同： 1）执行时不会弹出控制台窗口（也叫 DOS 窗口）2）所有向原有的 stdout 和 stderr 的输出都无效3）所有从原有的 stdin 的读取都只会得到 EOF .pyw 格式是被设计来运行开发完成的纯图形界面程序的，纯图形界面程序的用户不需要看到控制台窗口。值得一提的是，开发纯图形界面程序的时候，你可以暂时把 .pyw 改成 .py ，以便运行时能调出控制台窗口，看到所有错误信息，方便高度。]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[LocalBroadcastManager实现组件间通讯]]></title>
+    <url>%2F2016%2F11%2F25%2Fandroid%2FLocalBroadcastManager%2F</url>
+    <content type="text"><![CDATA[使用本地广播可以实现组件间、线程间通讯。本地广播数据仅在同一进程内传播，比全局广播更安全，也更高效，也不必担心其它应用伪造广播。应用内(同一进程)通讯建议使用本地广播，应用间通讯可以选择全局广播。 参考资料Android事件传递：本地广播LocalBroadcastManager 应用场景实现原理：通过一个全局共享的LocalBroadcastManager，在一个组件中发送广播，在另一个组件中接收广播，从而实现组件间通讯。 本地广播可以实现组件间通讯或线程间通讯。 组件间可用于多组件同步更新界面，Activity与Fragment间传递数据，或者代替onActivityResult方法回传数据等。线程间通讯可以用于网络请求成功后将数据发送到UI线程等。 相比全局广播，本地广播优点多多：首先，本地广播的数据在同一进程传播，其它应用无法监听，也无法伪造本地广播；其次，不像全局广播那样把广播发送给整个系统，所以执行效率更高；最后，本地广播不需要在Manifest.xml文件中注意，使用更加方便。 使用流程第1步：在组件1中发送本地广播12345// 发送本地广播Intent intent = new Intent();intent.setAction("action");intent.putExtra("name", "haoxueren");LocalBroadcastManager.getInstance(context).sendBroadcast(intent); 第2步：在组件2中注册广播接收者123456789101112// 注册广播接收者LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);manager.registerReceiver(new BroadcastReceiver() &#123; @Override public void onReceive(Context context, Intent intent) &#123; // 处理通过Intent传递过来的数据 String action = intent.getAction(); String extra = intent.getStringExtra("name"); // 注销BroadcastReceiver，释放资源 manager.unregisterReceiver(this); &#125;&#125;, new IntentFilter("action")); 第3步：在组件2中注销广播接收者 情况1、仅使用一次的广播，数据处理完毕后，可以直接在onReceive方法中注销掉当前广播接收者。1234567@Overridepublic void onReceive(Context context, Intent intent) &#123; // 处理通过Intent传递过来的数据 handleIntentData(intent); // 注销BroadcastReceiver，释放资源 LocalBroadcastManager.getInstance(context).unregisterReceiver(this);&#125; 情况2、需要重复使用的广播接收者，可以在事件流处理完后注销广播接收者，也可以在组件的onDestroy方法中注销。123456@Overrideprotected void onDestroy() &#123; super.onDestroy(); // 注销广播接收者，释放资源 LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver);&#125;]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>广播</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[mipmap与drawable的区别]]></title>
+    <url>%2F2016%2F10%2F20%2Fandroid%2Fmipmap-drawable%2F</url>
+    <content type="text"><![CDATA[App的图标文件放/mipmap目录，系统会使用mipmap纹理技术对图标进行处理，再根据手机分辨率生成更清晰的图标。其它图像资源仍然放在/drawable目录。如果App内的图像文件也想使用mipmap技术，可以使用bitmap.setHasMipmap()启用mipmap模式。 参考资料Android Application Modules mipmap和drawable文件夹的区别 mipmap纹理技术简介在三维世界中，显示一张图的大小与摄象机的位置有关，近的地方，图片实际象素就会大一些；远的地方，图片实际象素就会小一些。这就要对图片进行一些压缩。例如一张 64*64 的图，在近处，显示出来可能是 50*50，在远处可能显示出来是 20*20。 如果只限于简单的支持某些分辨率，将会使缩小后的图片损失很多细节，图片将变得很粗糙，因此，图形学有很多复杂的方法来处理压缩图片的问题，使得缩小后的图片依然清晰，然而，这些计算都会耗费一定的时间。 mipmap纹理技术是目前解决纹理分辨率与视点距离关系的最有效途径，它会先将图片压缩成很多逐渐缩小的图片，例如一张 64*64 的图片，会产生 64*64，32*32，16*16，8*8，4*4，2*2，1*1的 7 张图片，当屏幕上需要绘制像素点为 20*20 时，程序就会利用 32*32 和 16*16 这两张图片来计算出即将显示为 20*20 的图片，这比单独利用 32*32 的那张原始片计算出来的图片效果要好得多，速度也更快。 图像资源的mipmap模式使用mipmap技术处理图片，可以很好地生成多种分辨率的图像。比如在图像缩放动画中，mipmap模式的图片很有用。 Android 4.2 (API level 17) 中，Bitmap 类添加了bitmap.hasMipMap()方法和bitmap.setHasMipMap()方法，用来使图片支持mipmap模式。方法源码如下： 1234public final void setHasMipMap(boolean hasMipMap) &#123; checkRecycled("setHasMipMap called on a recycled bitmap"); nativeSetHasMipMap(mNativePtr, hasMipMap);&#125; 123456public final boolean hasMipMap() &#123; if (mRecycled) &#123; Log.w(TAG, "Called hasMipMap() on a recycle()'d bitmap! This is undefined behavior!"); &#125; return nativeHasMipMap(mNativePtr);&#125; 在Android 4.3中，BitmapDrawable类添加了bitmapDrawable.hasMipMap()方法和bitmapDrawable.setMipMap()方法。方法源码如下： 123456public void setMipMap(boolean mipMap) &#123; if (mBitmapState.mBitmap != null) &#123; mBitmapState.mBitmap.setHasMipMap(mipMap); invalidateSelf(); &#125;&#125; 123public boolean hasMipMap() &#123; return mBitmapState.mBitmap != null &amp;&amp; mBitmapState.mBitmap.hasMipMap();&#125; 由源码可见，BitmapDrawable是Bitmap的包装类，BitmapDrawable的setMipMap和hasMipMap方法，其实也是对Bitmap相应方法的包装。 应用举例：12345Resources resources = context.getResources();Drawable drawable = resources.getDrawable(resId, theme);BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;bitmapDrawable.getBitmap().setHasMipMap(true);boolean hasMipMap = bitmapDrawable.hasMipMap(); drawable与mipmap的区别APP的启动图标，应该放在mipmap目录下，以确保系统可以使用最佳分辨率的图标。放在mipmap目录下的图标，系统会使用mipmap纹理技术进行优化。 按官方推荐，应用图标应该放在mipmap目录，其它文件仍然放在drawable目录(实际上，把图片放到mipmap目录也是可以正常使用的)。 drawable For bitmap files (PNG, JPEG, or GIF), 9-Patch image files, and XML files that describe Drawable shapes or Drawable objects that contain multiple states (normal, pressed, or focused). See the Drawable resource type. mipmap For app launcher icons. The Android system retains the resources in this folder (and density-specific folders such as mipmap-xxxhdpi) regardless of the screen resolution of the device where your app is installed. This behavior allows launcher apps to pick the best resolution icon for your app to display on the home screen. For more information about using the mipmap folders, see Managing Launcher Icons as mipmap Resources.]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[什么是RESTful架构？]]></title>
+    <url>%2F2016%2F08%2F06%2Fandroid%2Fwhat-is-restful%2F</url>
+    <content type="text"><![CDATA[用URL描述资源，用HTTP(GET、POST、PUT、DELETE)操作改变资源的状态。一个成功的RESTful API，看URL就知道是什么，看HttpMethod就知道干什么，看HttpStatusCode就知道结果如何。 参考资料怎样用通俗的语言解释RESTful？ REST的概念REST：Resource Representational State Transfer 用URL描述资源，用HTTP(GET、POST、PUT、DELETE)操作改变资源的状态。——@Ivony REST描述的是在网络中Client和Server的一种交互形式。REST是一套接口设计原则，用来指导如何设计出RESTful风格的API。 REST业务背景大家都知道，以前的网页是前端后端融合在一起的，比如之前的PHP，JSP等。在之前的桌面时代问题不大，但是近年来移动互联网的发展，各种平台的Client层出不穷，RESTful可以通过一套统一的接口为 Web，iOS和Android提供服务。另外对于一些大平台来说，比如Facebook开放平台，微博开放平台，微信公共平台等，它们不需要有显式的前端，只需要一套提供服务的接口，于是RESTful更是它们最好的选择。 REST设计原则一个成功的RESTful API，看URL就知道是什么，看HttpMethod就知道干什么，看HttpStatusCode就知道结果如何。 1、使用名词来指定资源的URL，原则上不能使用动词。资源是REST架构或者说整个网络处理的核心。 12345http://api.qc.com/v1/newsfeed &lt;!--某人的新鲜事--&gt;http://api.qc.com/v1/friends &lt;!--某人的好友列表--&gt;http://api.qc.com/v1/profile &lt;!--某人的个人信息--&gt; 2、通过HTTP动词来实现资源状态的转移：GET用来获取资源，POST用来新建资源，PUT用来更新资源，DELETE用来删除资源。 1234567POST：http://api.qc.com/v1/friends &lt;!--添加好友--&gt;DELETE：http://api.qc.com/v1/friends &lt;!--删除好友--&gt;GET：http://api.qc.com/v1/friends &lt;!--获取好友列表--&gt;PUT：http://api.qc.com/v1/profile &lt;!--更新个人资料--&gt; 3、用JSON或XML在服务端和客户端间传输文本，用JPG，WebP，File传输文件。 4、用HTTP Status Code传递Server的状态信息。比如200表示请求成功，500表示Server内部错误等。]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>REST</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[拆书：牛人读书法]]></title>
+    <url>%2F2016%2F06%2F30%2Fstudy%2F%E6%8B%86%E4%B9%A6%EF%BC%9A%E7%89%9B%E4%BA%BA%E8%AF%BB%E4%B9%A6%E6%B3%95%2F</url>
+    <content type="text"><![CDATA[李敖读书法：在读书过程中，把自己需要的内容用剪刀剪出来，然后分门别类的整理进自己的知识库。这样，知识点就可以被融合进自己的知识体系里，当然也记得特别牢固。以后如果需要这个知识点，也非常方便查找和使用。 文 / 彭萦 （微信：改变自己，wechanger） 原文链接：牛人读书法：大卸八块 李敖很多人看完书之后，书上干干净净，这样对不对？李敖告诉你，“不要以为这本书看完了，还干干净净的新的就算看过。那个不算看过，因为当时是看过，可是浪费了。” 下面是李敖一段电视节目的文字记录，大家可以看看。看完后我告诉你，其实这样做的不止李敖一个人。 “我李敖看的书很少会忘掉，什么原因呢？方法好。什么方法？心狠手辣。剪刀美工刀全部用到，把书给分尸掉了，就是切开了。这一页我需要，这一段我需要，我把它按类别分开来。那背面有用怎么办呢？把它影印出来，或者一开始就买两本书，把两本书都切开以后整理出来，把要看的部分分类留存。结果一本书看完了，这本书也被分尸掉了。这就是我的看书方法。 那分类怎么分呢？我有很多自己做的夹子，夹子我写上字，把资料全部分类。一本书看完以后，全部进入我的夹子里面。我可以分出几千个类来，分得很细。好比说按照图书馆的分类，哲学类，宗教类；宗教类再分佛教类、道教类、天主教类。我李敖就分得更细了，天主教还可以细分，神父算一类。神父还可以细分，神父同性恋就是一类，神父还俗又是一类。修女同性恋是一类，修女还俗这又是一类。 任何书里有关的内容都进入我的资料里来。进入干什么呢？当我要写小说的时候，需要这个资料，打开资料，只是写一下就好了。或者发生了一个什么事件，跟修女同性恋有关系，我要发表对新闻的感想，把新闻拿过来，再把我的资料打开，两个一合并，文章立刻就写出来了。 换句话说，我这本书看完之后，被我大卸八块，五马分尸。可是被我勾住了，这些资料我不凭记忆来记它，我凭细部的很耐心的功夫把它勾紧，放在资料夹子里。我的记忆力只要记这些标题好了。标题是按照我的习惯来分的。基本上都翻译成英文字，用英文字母排出来，偶尔也有些中文的。 今天我把看家的本领告诉大家，李敖知道的那么多，博闻强记，记忆力那么好。我告诉大家，记忆力是可以训练的。记忆力一开始就是你不要偷懒，不要说躺在那里看书，看完了这本书还是干干净净的，整整齐齐的，这不对。看完了这本书，这本书就大卸八块，书进了资料夹，才算看完这本书。 今天我向大家特别亮一手，把如何看书的招告诉大家。不要以为这本书看完了，干干净净的新的算看过。那个不算看过，因为当时是看过，可是浪费了。你不能够有系统地扣住这些资料，跟资料挂钩。可是照我这个方法，可以把你看过的书，都把它的精华抓出来，扣在一起。这就是我的这种土法炼钢的治学方法。” 撕书读书法，还有谁这样做？ 任正非1、任正非：上次在公司听有关华为的报告，人大的教授说到任正非的读书方法我记录如下： 1）大量阅读，除了管理学，其他也都读 2）每次在机场书店至少拿五本书 3）每次读完书，把书中重要的东西撕下来，其他的处理掉 在听完报告后，我对比了任正非和李敖的读书方法的异同，其中相同之处都是拆书，不过李敖的出发点在于吃透全书，全面的整理和记忆资料，而任正非是为了留下重点，为我所用。 小山龙介2、小山龙介：《整理的艺术》作者，在书中提到一种更加现代的方法，他用切纸机把书拆掉，然后整本用扫描仪扫描，制作自己的电子书，进而变为自己的电子书架，电子书文件用 Evernote 之类的云笔记存储，将来也很好搜索和查找。 张辉3、张辉：其实我以前都是这样读书、读杂志、读报的，小时候就整理了厚厚的剪报，不过后来工作一忙，这招就失传了，直到看到把《时间当做朋友》中提到的李敖的读书方法，以及看到《整理的艺术》中的方法。才又决心拾起这个方法。这次出差前，已经用“拆书”的方法读了一本书。一本200页的书大概剩下不到50页。这次来美国开会，把收集的各种纸质材料都以“拆书”的方法处理，有参考价值的单页用手机拍摄，加上标注存到云笔记。会刊和杂志中有用的材料用笔圈出来，撕下单页。这样，有十几本杂志那么多的原始材料，就变成一本薄薄的杂志和一些存在云笔记中的电子文档。 总结前段时间我总结了牛人和常人读书方法的区别，如下： 牛人：有目的的读书，能抓住为自己所用的要点，读了马上用。如 Amazon CEO 贝索斯、华为创始人任正非，台湾作家李敖等。书读完之后书本支离破碎，但是最重要的知识却沉淀下来，有些直接变为技能，更有一些影响到了团队和公司。 常人：没有目的的读书，读了也不用，用书来麻痹自己，迷幻自己，消磨时间。书读完干干净净，和新的一样。问读到了啥？说不出来，更别提影响自己或影响别人了。 我们总有一种幻象，就是说我花钱买了书，然后放在书架上，这本书就是我的了。其实不然，一本干干净净的，躺在书架上落灰的新书，是书的耻辱，也是你金钱和时间的浪费(完)。]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>阅读</tag>
+        <tag>方法论</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[软件推荐(持续更新)]]></title>
+    <url>%2F2016%2F06%2F29%2Ftools%2Fsoftware-recommend%2F</url>
+    <content type="text"><![CDATA[工欲善其事，必先利其器。 运行精灵运行平台：Windows 官方网站：http://www.andisy.com/ 使用说明：http://www.andisy.com/runplus/introduction.php 可快速启动电脑上的应用，同时集成了常用的搜索引擎，且可以自定义配置。 蓝灯(Lattern)运行平台：Windows &amp; Android 官方网站：https://github.com/getlantern/lantern 使用说明：https://github.com/getlantern/lantern 一款简单好用的翻墙利器，每天免费500M流量。 MarkManPxCookhttp://www.fancynode.com.cn/pxcook SwitchHosts下载地址：https://github.com/oldj/SwitchHosts/releases Charles官方网站：https://www.charlesproxy.com/ Beyond Compare官方网站：http://www.beyondcompare.cc/]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[GreenDao升级SQLite数据库版本]]></title>
+    <url>%2F2016%2F03%2F25%2Fandroid%2Fgreendao-database-upgrade%2F</url>
+    <content type="text"><![CDATA[使用GreenDao升级SQLite数据库主要有四步：1、修改数据库实体类并增加数据库版本号；2、实现一个OpenHelper的子类MyOpenHelper；3、使用MyOpenHelper替换DevOpenHelper；4、在MyOpenHelper.onUpgrade()方法中升级数据库。 参考资料GreenDao version change 一、修改数据库实体类，增加字段1234567891011@Entitypublic class HaoNote &#123; @Id(autoincrement = true) private Long id; @NotNull private String note; // 新增加tag字段 private String tag; 二、创建MyOpenHelper，升级数据库123456789101112public class MyOpenHelper extends DaoMaster.OpenHelper &#123; public HaoOpenHelper(Context context, String name) &#123; super(context, name); &#125; @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) &#123; // 在这里执行数据库升级操作 db.execSQL("ALTER TABLE HAO_NOTE ADD COLUMN TAG"); &#125;&#125; 三、使用MyOpenHelper代替DevOpenHelper12345// 使用MyOpenHelper获取数据库DaoMaster.OpenHelper helper = new MyOpenHelper(this, "HaoNote.db");SQLiteDatabase database = helper.getWritableDatabase();DaoMaster daoMaster = new DaoMaster(database);DaoSession daoSession = daoMaster.newSession(); 四、在app.build.gradle中升级数据库版本1234greendao &#123; // schemaVersion 1 schemaVersion 2 &#125;]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>GreenDao</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[GreenDao简介及配置]]></title>
+    <url>%2F2016%2F03%2F22%2Fandroid%2Fgreendao-introduction%2F</url>
+    <content type="text"><![CDATA[在Android Studio中配置GreenDao3。 参考资料GitHub：https://github.com/greenrobot/greenDAO 官方文档：GreenDAO Documentation GreenDao简介GreenDAO is a light and fast ORM solution for Android that maps objects to SQLite databases. GreenDao的特性： 稳定可靠：GreenDao项目起始于2011年，至今已经被无数知名APP使用。 使用简单：简明直接的API，在V3版本，还引入了注解。 体积小：库的大小不足150K，而且由纯Java代码写成。 速度快：使用注解自动生成代码，可能是Android上最高效的ORM框架。 安全和富有表现力的查询API：QueryBuilder使用属性常量来避免拼写错误。 强大的关联查询：支持通过对象查询甚至组合复杂的关联查询。 灵活的数据类型：使用用户自定义的实体类来代表数据库中的数据。 支持加密：支持使用SQLCipher加密数据库。 在项目中引入GreenDao1、配置GreenDao插件12345678buildscript &#123; repositories &#123; mavenCentral() // add repository &#125; dependencies &#123; classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2' // add plugin &#125;&#125; 2、配置GreenDao依赖12345apply plugin: 'org.greenrobot.greendao' // apply plugin dependencies &#123; compile 'org.greenrobot:greendao:3.2.2' // add library&#125; 3、配置Schema信息12345678// In the build.gradle file of your app projectandroid &#123;...&#125;greendao &#123; schemaVersion 1&#125; 更多信息请参考：Modelling entities#Schema 异常解决方案异常信息： Unable to find method ‘org.gradle.api.tasks.TaskInputs.file(Ljava/lang/Object;)Lorg/gradle/api/tasks/TaskInputFilePropertyBuilder;’.Possible causes for this unexpected error include: Gradle’s dependency cache may be corrupt (this sometimes occurs after a network connection timeout.)Re-download dependencies and sync project (requires network)The state of a Gradle build process (daemon) may be corrupt. Stopping all Gradle daemons may solve this problem.Stop Gradle build processes (requires restart)Your project may be using a third-party plugin which is not compatible with the other plugins in the project or the version of Gradle requested by the project. 解决方案： 在Setting &gt; Build &gt; Gradle 中选择：Use default gradle wrapper(recommended) 在gradle-wrapper.properties文件中的distributionUrl设置为：distributionUrl=https\://services.gradle.org/distributions/gradle-3.3-all.zip GreenDao官方示例代码官方示例代码地址：GreenDAO Examples On GitHub]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>GreenDao</tag>
+        <tag>ORM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[自定义一闪一闪TextView]]></title>
+    <url>%2F2016%2F02%2F07%2Fandroid%2Fflash-textview%2F</url>
+    <content type="text"></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>自定义控件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android Shader效果概览]]></title>
+    <url>%2F2016%2F02%2F05%2Fandroid%2Fandroid-shader%2F</url>
+    <content type="text"><![CDATA[LinearGradient1234float[] positions = &#123;0.0f, 0.5f, 1.0f&#125;;int[] colors = &#123;Color.RED, Color.GREEN, Color.MAGENTA&#125;;Shader.TileMode tileMode = Shader.TileMode.MIRROR;Shader linearGradient = new LinearGradient(x0, y0, x1, y1, colors, positions, tileMode); RadialGradient1234float[] positions = &#123;0.0f, 0.5f, 1.0f&#125;;int[] colors = &#123;Color.RED, Color.GREEN, Color.MAGENTA&#125;;Shader.TileMode tileMode = Shader.TileMode.MIRROR;Shader radialGradient = new RadialGradient(centerX, centerY, radius, colors, positions, tileMode); SweepGradient123float[] positions = &#123;0.0f, 0.5f, 1.0f&#125;;int[] colors = &#123;Color.RED, Color.GREEN, Color.MAGENTA&#125;;Shader sweepGradient = new SweepGradient(centerX, centerY, colors, positions); BitmapShader1BitmapShader bitmapShader = new BitmapShader(bitmap, tileX, tileY); ComposeShader1ComposeShader composeShader = new ComposeShader(linearGradient, bitmapShader, PorterDuff.Mode.ADD);]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Shader</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Shader的3种平铺模式详解]]></title>
+    <url>%2F2016%2F02%2F03%2Fandroid%2Fshader-tilemode%2F</url>
+    <content type="text"><![CDATA[当所需要绘制的Bitmap大于Shader的尺寸时，就需要指定使用渲染器(Shader)的方式，而Shader.TileMode就是用来定义Paint使用Shader的方式，有REPEA、MIRROR、CLAMP三种模式。 核心代码12345678910111213141516171819202122/** 绘制不同TileMode的图像 */public void setTileMode(TileMode tileX, TileMode tileY) &#123; // 从资源文件获取Bitmap对象 Resources resources = context.getResources(); Drawable drawable = resources.getDrawable(R.drawable.cartoon_dog); Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap(); // 用原Bitmap对象的参数创建一个新的Bitmap int width = bitmap.getWidth() * 2; int height = bitmap.getHeight() * 2; Bitmap.Config config = bitmap.getConfig(); Bitmap newBitmap = Bitmap.createBitmap(width, height, config); // 创建BitmapShader并设置给画笔 Shader shader = new BitmapShader(bitmap, tileX, tileY); Paint paint = new Paint(); paint.setShader(shader); // 将图像绘制到bitmapOval上 RectF rect = new RectF(0, 0, width, height); Canvas canvas = new Canvas(newBitmap); canvas.drawRect(rect, paint); // 显示绘制好的图像 imageView.setImageBitmap(newBitmap);&#125; REPEAT模式按从左到右，从上到下的顺序重复绘制(如图)123TileMode tileX = TileMode.REPEAT;TileMode tileY = TileMode.REPEAT;setTileMode(tileX, tileY); MIRROR模式按从右到左，从下到上的顺序重复绘制(如图)123TileMode tileX = TileMode.MIRROR;TileMode tileY = TileMode.MIRROR;setTileMode(tileX, tileY); CLAMP模式仅使用边缘的颜色重复绘制(如图)123TileMode tileX = TileMode.CLAMP;TileMode tileY = TileMode.CLAMP;setTileMode(tileX, tileY);]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Shader</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[使用BitmapShader绘制椭圆图片]]></title>
+    <url>%2F2016%2F02%2F03%2Fandroid%2Foval-image-bitmapshader%2F</url>
+    <content type="text"><![CDATA[BitmapShader类的构造方法BitmapShader是Shader的子类，使用一个Bitmap作为渲染器的内容。 1234567891011121314/** * 调用构造方法创建一个BitmapShader对象 * Bitmap对象就相当于绘画的颜料，而TitleMode相当于画笔使用颜料的方式 * * @param bitmap 着色器(Shader)所使用的Bitmap对象 * @param tileX X轴的平铺模式 * @param tileY X轴的平铺模式 */public BitmapShader(Bitmap bitmap, TileMode tileX, TileMode tileY) &#123; mBitmap = bitmap; mTileX = tileX; mTileY = tileY; init(nativeCreate(bitmap, tileX.nativeInt, tileY.nativeInt));&#125; 从资源文件中获取Bitmap对象123456/** 从资源文件中获取Bitmap对象 */public Bitmap getBitmapFromRes(int resId) &#123; Resources resources = context.getResources(); BitmapDrawable drawable = (BitmapDrawable) resources.getDrawable(resId); return drawable.getBitmap();&#125; 使用原图绘制一个椭圆形的Bitmap12345678910111213141516171819/** 根据原图生成一个椭圆形的Bitmap */public Bitmap drawOvalBitmap(Bitmap bitmap) &#123; // 根据原Bitmap创建一个新Bitmap int width = bitmap.getWidth(); int height = bitmap.getHeight(); Bitmap.Config config = bitmap.getConfig(); Bitmap ovalBitmap = Bitmap.createBitmap(width, height, config); // 创建BitmapShader Shader.TileMode clamp = Shader.TileMode.CLAMP; Shader shader = new BitmapShader(bitmap, clamp, clamp); // 创建画笔并设置渲染器 Paint paint = new Paint(); paint.setShader(shader); // 将图像绘制到bitmapOval上 RectF oval = new RectF(0, 0, width, height); Canvas canvas = new Canvas(ovalBitmap); canvas.drawOval(oval, paint); return ovalBitmap;&#125; 将绘制好的椭圆图像加载到ImageView12345678public void loadBitmapToImageView(int resId) &#123; // 获取原图的Bitmap对象 Bitmap sourceBitmap = getBitmapFromRes(resId); // 绘制椭圆型Bitmap Bitmap ovalBitmap = drawOvalBitmap(sourceBitmap); // 设置图片到ImageView imageView.setImageBitmap(ovalBitmap);&#125;]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Shader</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[JVM、Dalvik与ART虚拟机简介]]></title>
+    <url>%2F2015%2F08%2F23%2Fandroid%2Fjvm-dalvik-art%2F</url>
+    <content type="text"><![CDATA[本文简单介绍了Java虚拟机(JVM)和两种Android虚拟机(Dalvik、ART)的特点，并比较了三者之间的异同。 JVMJVM对操作系统的硬件层进行了一层软件抽象，从而屏蔽了底层实现的差异。 Java代码则直接编译为字节码(.class)文件，再由JVM解释成机器指令进行执行。 根据JVM规范实现的虚拟器有几十种，主流的有Hotspot VM、J9 VM、Zing VM等，基本上都是使用 C/C++和汇编语言实现的。 DalvikDalvik是Google专门为Android平台设计的一款虚拟机，.dex文件是专门为Dalvik虚拟机设计的一种压缩格式，更适用于内在的处理器速度有限的系统。 Dalvik打包工具在将.class文件打包为.dex文件时，会对Java类进行重新排序，消除其中的冗余信息，并让所有类文件共享一个常量池，使用相同的常量在.dex文件中只出现一次，从而减小了文件体积。 .dex文件可以直接运行在Dalvik虚拟机上，每一个Dalvik应用被作为一个单独的Linux进程，提高了应用程序的安全性和独立性。 在Android 2.2版本中，Dalvik虚拟机引入了即时编译技术(JIT：Just In Time)，在每次运行程序时，会将一些执行频率非常高的方法编译了机器代码缓存起来，以提高应用执行效率。但每次程序重新运行的时候，都要重新做这个缓存的工作。这一机制并不高效，但应用安装速度比较快，而且对不同架构的硬件兼容性比较好。 Dalvik与JVM的区别 1、JVM是基于栈的，而Dalvik是基于寄存器的； 2、JVM运行的是.class文件，而Dalvik运行的是.dex文件； 3、为简化解释器，Dalvik的常量池只使用32位索引； 基于栈结构的JVM，程序运行时JVM需要频繁的从栈上读写数据，因而需要更多的指令分派和内在访问次数，所以会耗费很多的CPU时间；而Dalvik是基于寄存器架构的，这虽然牺牲了一些跨平台性，但使得数据的访问直接通过寄存器传递，这种方式比基于栈的方式快得多。 寄存器：用来暂时存储数据、指令和地址，相当于CPU的内存。 ARTGoogle在Android 4.4中发布的ART虚拟机，与Dalvik共存。2014年6月25日，Google发布Android 5.0(代号L)系统，Android 5.0系统中，Google删除了Dalvik虚拟机，取而代之的是Android Runtime，即ART虚拟机。 ART虚拟机采用的是预编译(AOT：Ahead Of Time)技术，应用在安装时就被提前编译成机器码，使应该成为真正的本地应用，Dalvik执行的是.dex字节码，而ART执行的是机器码，移除了解释代码这一环节，因此ART虚拟机运行应用更快更流畅。 ART虚拟机的优点： 1、系统性能有显著提升； 2、支持性能更低的硬件； 3、更长的电池续航能力； 4、应用启动更快，运行更流畅； ART虚拟机的缺点： 1、安装时进行预编译会导致应用的安装时间会变长； 2、编译成的机器码会占用更多的空间，代码文件的体积大概会增加10%~20%。]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Git 常用命令详解]]></title>
+    <url>%2F2015%2F07%2F27%2Fgit%2Fgit-tutorial%2F</url>
+    <content type="text"><![CDATA[参考资料GUI虽然方便易操作，但使用命令行却更加高效灵活，还可以写成脚本，实现自动化操作。 我们强烈建议所有的git仓库都有一个README, LICENSE, .gitignore文件。 Git 全局设置1234# 设置用户名(全局)git config --global user.name "xxx"# 设置用户邮箱(全局)git config --global user.email "xxx@qq.com" 在本地创建git仓库123mkdir &lt;仓库名称&gt;cd &lt;仓库名称&gt;git init 配置远程仓库地址1git remote add origin https://gitee.com/xxx/xxx.git 添加文件并提交123git add --all # 添加所有文件git commit -m "xxx" # 添加提交信息git push origin master # 推送到远程仓库 更新本地项目Git fetch和Git pull的区别 1234# 从远程获取最新版本到本地temp分支上，然后比较本地分支与远程分支的差别，最后进行合并git fetch origin master:tempgit diff tempgit merge temp 12# 从远程获取最新版本的代码并合并到本地git pull 提交本地项目12345git pullgit add --allgit commit --message "commit message"git remote add origin &lt;仓库地址&gt;git push -u origin master 查询仓库信息12# 查询远程仓库的地址git remote --verbose git reflog1git reflog 显示整个本地仓储的commit, 包括所有branch的commit, 甚至包括已经撤销的commit, 只要HEAD发生了变化, 就会在reflog里面看得到. git log只包括当前分支的commit. 每一次当前HEAD发生改变（包括切换branch, pull, 添加新commit）一个新的纪录就会被添加到reflog.]]></content>
+      <categories>
+        <category>工作</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Android 生成随机颜色]]></title>
+    <url>%2F2015%2F05%2F06%2Fandroid%2Frandom-color%2F</url>
+    <content type="text"><![CDATA[使用random.nextInt(n)方法生成四个[0~255]的随机颜色值，分配给ARGB四个通道，再使用Color.argb(alpha,red,green,blue)方法合成一个颜色值。 生成随机颜色一个色值由ARGB四个通道组成，每个通道的取值为[0,255]，其中透明度(alpha)通道可以没有。 要生成随机颜色，我们只需要随机生成每个通道的值，就可以合成一个随机的颜色值。 123456789Random random = new Random();int alpha = random.nextInt(256);int red = random.nextInt(256);int green = random.nextInt(256);int blue = random.nextInt(256);// 生成不带透明度的颜色int color = Color.rgb(red, green, blue);// 生成带透明度通道的颜色int color = Color.argb(alpha, red, green, blue);]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Service的生命周期]]></title>
+    <url>%2F2014%2F09%2F10%2Fandroid%2Fandroid-service-lifecycle%2F</url>
+    <content type="text"><![CDATA[Service的生命周期图。]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Activity</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Activity的生命周期]]></title>
+    <url>%2F2014%2F08%2F31%2Fandroid%2Factivity-lifecycle%2F</url>
+    <content type="text"><![CDATA[Activity的生命周期图。]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>Activity</tag>
+      </tags>
+  </entry>
+</search>

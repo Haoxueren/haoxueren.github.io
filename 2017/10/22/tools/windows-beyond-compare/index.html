@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Git," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="参考资料Windows下使用Beyond Compare作为git的比对与合并工具 问题搜索：Beyond Compare 服务中心 Git中配置Beyond Compare打开Git的全局配置文件C:\Users\Username\.gitconfig，添加如下内容： 12345678910[diff] # 将Beyond Compare配置为差异比较工具    tool = BC4[difft">
+<meta name="keywords" content="Git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Beyond Compare 使用说明">
+<meta property="og:url" content="http://haoxueren.com/2017/10/22/tools/windows-beyond-compare/index.html">
+<meta property="og:site_name" content="稳扎稳打，步步为营">
+<meta property="og:description" content="参考资料Windows下使用Beyond Compare作为git的比对与合并工具 问题搜索：Beyond Compare 服务中心 Git中配置Beyond Compare打开Git的全局配置文件C:\Users\Username\.gitconfig，添加如下内容： 12345678910[diff] # 将Beyond Compare配置为差异比较工具    tool = BC4[difft">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://haoxueren.com/images/bc_ui_main.png">
+<meta property="og:image" content="http://haoxueren.com/images/bc_setting_current.png">
+<meta property="og:updated_time" content="2017-11-04T14:14:17.090Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Beyond Compare 使用说明">
+<meta name="twitter:description" content="参考资料Windows下使用Beyond Compare作为git的比对与合并工具 问题搜索：Beyond Compare 服务中心 Git中配置Beyond Compare打开Git的全局配置文件C:\Users\Username\.gitconfig，添加如下内容： 12345678910[diff] # 将Beyond Compare配置为差异比较工具    tool = BC4[difft">
+<meta name="twitter:image" content="http://haoxueren.com/images/bc_ui_main.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://haoxueren.com/2017/10/22/tools/windows-beyond-compare/"/>
+
+
+
+
+
+  <title>Beyond Compare 使用说明 | 稳扎稳打，步步为营</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">稳扎稳打，步步为营</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">对生活充满热情，对未来充满信心</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://haoxueren.com/2017/10/22/tools/windows-beyond-compare/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="好学人">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="稳扎稳打，步步为营">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Beyond Compare 使用说明</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-22T00:00:00+08:00">
+                2017-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工作/" itemprop="url" rel="index">
+                    <span itemprop="name">工作</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://www.jianshu.com/p/11f52449cff9" target="_blank" rel="external">Windows下使用Beyond Compare作为git的比对与合并工具</a></p>
+<p><a href="http://www.beyondcompare.cc/support.html" target="_blank" rel="external">问题搜索：Beyond Compare 服务中心</a></p>
+<h3 id="Git中配置Beyond-Compare"><a href="#Git中配置Beyond-Compare" class="headerlink" title="Git中配置Beyond Compare"></a>Git中配置Beyond Compare</h3><p>打开Git的全局配置文件<code>C:\Users\Username\.gitconfig</code>，添加如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[diff] <span class="comment"># 将Beyond Compare配置为差异比较工具</span></div><div class="line">    tool = BC4</div><div class="line">[difftool <span class="string">"BC4"</span>]</div><div class="line">    cmd = <span class="string">"\"C:/Program Files/Beyond Compare 4/BComp.exe\" \"<span class="variable">$LOCAL</span>\" \"<span class="variable">$REMOTE</span>\""</span></div><div class="line"></div><div class="line"></div><div class="line">[merge] <span class="comment"># 将Beyond Compare配置为冲突合并工具</span></div><div class="line">    tool = BC4</div><div class="line">[mergetool <span class="string">"BC4"</span>]</div><div class="line">    cmd = <span class="string">"\"C:/Program Files/Beyond Compare 4/BComp.exe\" \"<span class="variable">$LOCAL</span>\" \"<span class="variable">$REMOTE</span>\" \"<span class="variable">$BASE</span>\" \"<span class="variable">$MERGED</span>\""</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意代码中的 <font color="red">/</font> 与 <font color="red">\</font></p>
+</blockquote>
+<h3 id="BASE-LOCAL-REMOTE-文件"><a href="#BASE-LOCAL-REMOTE-文件" class="headerlink" title=".BASE .LOCAL .REMOTE 文件"></a>.BASE .LOCAL .REMOTE 文件</h3><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>含义</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LOCAL</td>
+<td>本地分支</td>
+<td>当前所在分支</td>
+</tr>
+<tr>
+<td>REMOTE</td>
+<td>远程分支</td>
+<td>要与当前分支合并的分支</td>
+</tr>
+<tr>
+<td>BASE</td>
+<td>共同祖先分支</td>
+<td>要合并的两个分支的最近的共同祖先版本</td>
+</tr>
+<tr>
+<td>BACKUP</td>
+<td>冲突文件备份</td>
+<td>冲突文件备份</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Git中调用Beyond-Compare"><a href="#Git中调用Beyond-Compare" class="headerlink" title="Git中调用Beyond Compare"></a>Git中调用Beyond Compare</h3><p>差异比较：<code>git difftool &lt;filename&gt;</code></p>
+<p>冲突合并：<code>git mergetool</code></p>
+<h3 id="使用Beyond-Compare合并冲突"><a href="#使用Beyond-Compare合并冲突" class="headerlink" title="使用Beyond Compare合并冲突"></a>使用Beyond Compare合并冲突</h3><p><img src="/images/bc_ui_main.png" alt=""></p>
+<p>使用Beyond Compare合并冲突时，会自动生成BASE、LOCAL、REMOTE、BACKUP几个辅助文件。解决完冲突后，保存合并好的文件，然后关闭Beyond Compare即可。之前生成的辅助文件都会自动删除，但同时会生成一个<code>.orig</code>的文件，里面的内容是解决冲突前的冲突现场。默认该<code>.orig</code>文件不会自动删除，可以使用需要手动删掉。</p>
+<h3 id="Beyond-Compare常用配置"><a href="#Beyond-Compare常用配置" class="headerlink" title="Beyond Compare常用配置"></a>Beyond Compare常用配置</h3><p>显示行号：View &gt; Line Numbers</p>
+<p>设置当前行样式：Tools &gt; Options &gt; Color,Fonts &gt; File Views &gt; Elements:Current &gt; TextColor &amp; Background &gt; Apply<br><img src="/images/bc_setting_current.png" alt=""></p>
+<h3 id="Beyond-Compare快捷键"><a href="#Beyond-Compare快捷键" class="headerlink" title="Beyond Compare快捷键"></a>Beyond Compare快捷键</h3><p>参考资料：<a href="https://jingyan.baidu.com/article/fdffd1f84edc5ef3e88ca15e.html" target="_blank" rel="external">Beyond Compare文本合并快捷键</a></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alt + N</td>
+<td>下一个冲突部分</td>
+</tr>
+<tr>
+<td>Alt + P</td>
+<td>上一个冲突部分</td>
+</tr>
+<tr>
+<td>Ctrl + I</td>
+<td>文本合并信息</td>
+</tr>
+<tr>
+<td>Ctrl + D</td>
+<td>选择当前光标行</td>
+</tr>
+<tr>
+<td>Ctrl + N</td>
+<td>下一个差异部分</td>
+</tr>
+<tr>
+<td>Ctrl + P</td>
+<td>上一个差异部分</td>
+</tr>
+<tr>
+<td>Ctrl + L</td>
+<td>采用左边的部分</td>
+</tr>
+<tr>
+<td>Ctrl + R</td>
+<td>采用右边的部分</td>
+</tr>
+<tr>
+<td>Ctrl + B</td>
+<td>采用左边+右边</td>
+</tr>
+<tr>
+<td>Ctrl + Shift + B</td>
+<td>采用右边+左边</td>
+</tr>
+<tr>
+<td>Ctrl + Shift + N</td>
+<td>下一个差异行</td>
+</tr>
+<tr>
+<td>Ctrl + Shift + P</td>
+<td>上一个差异行</td>
+</tr>
+<tr>
+<td>Ctrl + Shift + L</td>
+<td>采用左边的一行</td>
+</tr>
+<tr>
+<td>Ctrl + Shift + R</td>
+<td>采用右边的一行</td>
+</tr>
+<tr>
+<td>Ctrl + Shift + S</td>
+<td>当前会话另存为</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Git/" rel="tag"># Git</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/22/work/photoshop_gif/" rel="next" title="使用PhotoShop制作GIF动态图">
+                <i class="fa fa-chevron-left"></i> 使用PhotoShop制作GIF动态图
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/23/git/git-checkout/" rel="prev" title="git checkout 命令详解">
+                git checkout 命令详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">好学人</p>
+              <p class="site-description motion-element" itemprop="description">今年最重要的事情是什么？</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">93</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">1.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Git中配置Beyond-Compare"><span class="nav-number">2.</span> <span class="nav-text">Git中配置Beyond Compare</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BASE-LOCAL-REMOTE-文件"><span class="nav-number">3.</span> <span class="nav-text">.BASE .LOCAL .REMOTE 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Git中调用Beyond-Compare"><span class="nav-number">4.</span> <span class="nav-text">Git中调用Beyond Compare</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Beyond-Compare合并冲突"><span class="nav-number">5.</span> <span class="nav-text">使用Beyond Compare合并冲突</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Beyond-Compare常用配置"><span class="nav-number">6.</span> <span class="nav-text">Beyond Compare常用配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Beyond-Compare快捷键"><span class="nav-number">7.</span> <span class="nav-text">Beyond Compare快捷键</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">好学人</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

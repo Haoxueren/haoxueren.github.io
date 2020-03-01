@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="工具,TotalCMD," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Total Commander是一款功能非常强大的资源管理器，仅使用快捷键就可以完成对文件的日常操作，上手后可以极大地提高工作效率。">
+<meta name="keywords" content="工具,TotalCMD">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TotalCMD使用指南">
+<meta property="og:url" content="http://haoxueren.com/2017/08/27/tools/windows-totalcmd/index.html">
+<meta property="og:site_name" content="稳扎稳打，步步为营">
+<meta property="og:description" content="Total Commander是一款功能非常强大的资源管理器，仅使用快捷键就可以完成对文件的日常操作，上手后可以极大地提高工作效率。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-04T14:14:48.619Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TotalCMD使用指南">
+<meta name="twitter:description" content="Total Commander是一款功能非常强大的资源管理器，仅使用快捷键就可以完成对文件的日常操作，上手后可以极大地提高工作效率。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://haoxueren.com/2017/08/27/tools/windows-totalcmd/"/>
+
+
+
+
+
+  <title>TotalCMD使用指南 | 稳扎稳打，步步为营</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">稳扎稳打，步步为营</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">对生活充满热情，对未来充满信心</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://haoxueren.com/2017/08/27/tools/windows-totalcmd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="好学人">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="稳扎稳打，步步为营">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">TotalCMD使用指南</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-27T00:00:00+08:00">
+                2017-08-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工作/" itemprop="url" rel="index">
+                    <span itemprop="name">工作</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Total Commander是一款功能非常强大的资源管理器，仅使用快捷键就可以完成对文件的日常操作，上手后可以极大地提高工作效率。</p>
+<a id="more"></a>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://www.ghisler.com/" target="_blank" rel="external">Total Commander官方网站</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/24873312" target="_blank" rel="external">Total Commander使用教程</a></p>
+<p><a href="http://xbeta.info/studytc/index.htm" target="_blank" rel="external">最易读的Total Commander教程</a></p>
+<h3 id="TotalCMD配置"><a href="#TotalCMD配置" class="headerlink" title="TotalCMD配置"></a>TotalCMD配置</h3><p>下载注册补丁：<a href="http://download.csdn.net/download/wsdbd/9726195" target="_blank" rel="external">Total Commander 9.0a wincmd.key</a></p>
+<p>更改文字样式：配置 &gt; 选项 &gt; 显示 &gt; 字体</p>
+<p>文件提示信息：配置 &gt; 选项 &gt; 显示(提示信息)</p>
+<p>工具栏快捷方式：在工具栏上右键，依次[更改]，打开[更改工具栏]，依次点击：添加 &gt; 更改 &gt; 插入文件名，然后选择一个文件图标，点击确定。</p>
+<h3 id="常用快捷键"><a href="#常用快捷键" class="headerlink" title="常用快捷键"></a>常用快捷键</h3><p>当前版本：Total Commander 9.0a</p>
+<p>TotalCMD的帮助文档位于<code>/TotalCMD/TOTALCMD.CHM</code>。</p>
+<p><font color="red">在TotalCMD界面，按 F1 打开帮助文件，依次打开 Operation &gt; Keyboard Layout 即可打开快捷键说明文档。</font></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>说明</th>
+<th>快捷键</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F3</td>
+<td>View(查看)</td>
+<td>Ctrl + D</td>
+<td>打开收藏夹</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Edit(编辑)</td>
+<td>Ctrl + S</td>
+<td>搜索文件</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Copy(复制)</td>
+<td>Ctrl + T</td>
+<td>新建窗口标签</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>Move(移动)</td>
+<td>Ctrl + Z</td>
+<td>为文件/目录添加注释</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>新建文件夹</td>
+<td>Ctrl + U</td>
+<td>交换左右侧窗口</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>Delete(删除)</td>
+<td>Ctrl + L</td>
+<td>统计选中文件的大小</td>
+</tr>
+<tr>
+<td>Backspace</td>
+<td>返回上级目录</td>
+<td>Ctrl + W</td>
+<td>关闭当前标签</td>
+</tr>
+<tr>
+<td>Shift + F6</td>
+<td>重命名</td>
+<td>Ctrl + Num*</td>
+<td>锁定当前标签</td>
+</tr>
+<tr>
+<td>Shift + F10</td>
+<td>打开右键菜单</td>
+<td>Ctrl + Shift + \</td>
+<td>返回根目录</td>
+</tr>
+<tr>
+<td>Shift + Esc</td>
+<td>最小化TotalCMD</td>
+<td>Ctrl + Tab</td>
+<td>切换标签</td>
+</tr>
+<tr>
+<td>Alt + Left</td>
+<td>上一次目录</td>
+<td>Ctrl +Shift + F1</td>
+<td>切换为列表/图片模式</td>
+</tr>
+<tr>
+<td>Alt + Right</td>
+<td>下一个目录</td>
+<td>Ctrl +Shift + C</td>
+<td>复制文件全路径</td>
+</tr>
+<tr>
+<td>Alt + Down</td>
+<td>访问历史记录</td>
+<td>Ctrl + M</td>
+<td>批量重命名</td>
+</tr>
+<tr>
+<td>Alt + F5</td>
+<td>压缩文件</td>
+<td>Ctrl +Shift + F5</td>
+<td>创建文件快捷方式到另一栏</td>
+</tr>
+<tr>
+<td>Alt + F6</td>
+<td>解压缩文件</td>
+<td>Shift + F4</td>
+<td>新建文件</td>
+</tr>
+<tr>
+<td>Alt + +/-</td>
+<td>选中/取消选中同类型文件</td>
+<td>Ctrl +Shift + W</td>
+<td>关闭其它窗口</td>
+</tr>
+<tr>
+<td>Alt + Enter</td>
+<td>打开文件属性窗口</td>
+<td>Alt + F4</td>
+<td>Exit(退出)</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/工具/" rel="tag"># 工具</a>
+          
+            <a href="/tags/TotalCMD/" rel="tag"># TotalCMD</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/20/android/Service的生命周期/" rel="next" title="Service的生命周期">
+                <i class="fa fa-chevron-left"></i> Service的生命周期
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/28/work/linux-bash-grep/" rel="prev" title="Linux grep 使用案例">
+                Linux grep 使用案例 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">好学人</p>
+              <p class="site-description motion-element" itemprop="description">今年最重要的事情是什么？</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">93</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">1.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TotalCMD配置"><span class="nav-number">2.</span> <span class="nav-text">TotalCMD配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用快捷键"><span class="nav-number">3.</span> <span class="nav-text">常用快捷键</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">好学人</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Shader," />
+
+
+
+
+
+
+
+
+
+
+<meta name="keywords" content="Shader">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用BitmapShader绘制椭圆图片">
+<meta property="og:url" content="http://haoxueren.com/2016/02/03/android/oval-image-bitmapshader/index.html">
+<meta property="og:site_name" content="稳扎稳打，步步为营">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://haoxueren.com/images/bitmap_oval.png">
+<meta property="og:updated_time" content="2017-08-29T08:00:42.054Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用BitmapShader绘制椭圆图片">
+<meta name="twitter:image" content="http://haoxueren.com/images/bitmap_oval.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://haoxueren.com/2016/02/03/android/oval-image-bitmapshader/"/>
+
+
+
+
+
+  <title>使用BitmapShader绘制椭圆图片 | 稳扎稳打，步步为营</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">稳扎稳打，步步为营</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">对生活充满热情，对未来充满信心</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://haoxueren.com/2016/02/03/android/oval-image-bitmapshader/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="好学人">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="稳扎稳打，步步为营">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用BitmapShader绘制椭圆图片</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-02-03T00:00:00+08:00">
+                2016-02-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="/images/bitmap_oval.png" alt=""></p>
+<a id="more"></a>
+<h3 id="BitmapShader类的构造方法"><a href="#BitmapShader类的构造方法" class="headerlink" title="BitmapShader类的构造方法"></a>BitmapShader类的构造方法</h3><p>BitmapShader是Shader的子类，使用一个Bitmap作为渲染器的内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 调用构造方法创建一个BitmapShader对象</span></div><div class="line"><span class="comment"> * Bitmap对象就相当于绘画的颜料，而TitleMode相当于画笔使用颜料的方式</span></div><div class="line"><span class="comment"> *</span></div><div class="line"><span class="comment"> * <span class="doctag">@param</span> bitmap     着色器(Shader)所使用的Bitmap对象</span></div><div class="line"><span class="comment"> * <span class="doctag">@param</span> tileX      X轴的平铺模式</span></div><div class="line"><span class="comment"> * <span class="doctag">@param</span> tileY      X轴的平铺模式</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">BitmapShader</span><span class="params">(Bitmap bitmap, TileMode tileX, TileMode tileY)</span> </span>&#123;</div><div class="line">    mBitmap = bitmap;</div><div class="line">    mTileX = tileX;</div><div class="line">    mTileY = tileY;</div><div class="line">    init(nativeCreate(bitmap, tileX.nativeInt, tileY.nativeInt));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="从资源文件中获取Bitmap对象"><a href="#从资源文件中获取Bitmap对象" class="headerlink" title="从资源文件中获取Bitmap对象"></a>从资源文件中获取Bitmap对象</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/** 从资源文件中获取Bitmap对象 */</span></div><div class="line"><span class="function"><span class="keyword">public</span> Bitmap <span class="title">getBitmapFromRes</span><span class="params">(<span class="keyword">int</span> resId)</span> </span>&#123;</div><div class="line">    Resources resources = context.getResources();</div><div class="line">    BitmapDrawable drawable = (BitmapDrawable) resources.getDrawable(resId);</div><div class="line">    <span class="keyword">return</span> drawable.getBitmap();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="使用原图绘制一个椭圆形的Bitmap"><a href="#使用原图绘制一个椭圆形的Bitmap" class="headerlink" title="使用原图绘制一个椭圆形的Bitmap"></a>使用原图绘制一个椭圆形的Bitmap</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/** 根据原图生成一个椭圆形的Bitmap */</span></div><div class="line"><span class="function"><span class="keyword">public</span> Bitmap <span class="title">drawOvalBitmap</span><span class="params">(Bitmap bitmap)</span> </span>&#123;</div><div class="line">    <span class="comment">// 根据原Bitmap创建一个新Bitmap</span></div><div class="line">    <span class="keyword">int</span> width = bitmap.getWidth();</div><div class="line">    <span class="keyword">int</span> height = bitmap.getHeight();</div><div class="line">    Bitmap.Config config = bitmap.getConfig();</div><div class="line">    Bitmap ovalBitmap = Bitmap.createBitmap(width, height, config);</div><div class="line">    <span class="comment">// 创建BitmapShader</span></div><div class="line">    Shader.TileMode clamp = Shader.TileMode.CLAMP;</div><div class="line">    Shader shader = <span class="keyword">new</span> BitmapShader(bitmap, clamp, clamp);</div><div class="line">    <span class="comment">// 创建画笔并设置渲染器</span></div><div class="line">    Paint paint = <span class="keyword">new</span> Paint();</div><div class="line">    paint.setShader(shader);</div><div class="line">    <span class="comment">// 将图像绘制到bitmapOval上</span></div><div class="line">    RectF oval = <span class="keyword">new</span> RectF(<span class="number">0</span>, <span class="number">0</span>, width, height);</div><div class="line">    Canvas canvas = <span class="keyword">new</span> Canvas(ovalBitmap);</div><div class="line">    canvas.drawOval(oval, paint);</div><div class="line">    <span class="keyword">return</span> ovalBitmap;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="将绘制好的椭圆图像加载到ImageView"><a href="#将绘制好的椭圆图像加载到ImageView" class="headerlink" title="将绘制好的椭圆图像加载到ImageView"></a>将绘制好的椭圆图像加载到ImageView</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadBitmapToImageView</span><span class="params">(<span class="keyword">int</span> resId)</span> </span>&#123;</div><div class="line">    <span class="comment">// 获取原图的Bitmap对象</span></div><div class="line">    Bitmap sourceBitmap = getBitmapFromRes(resId);</div><div class="line">    <span class="comment">// 绘制椭圆型Bitmap</span></div><div class="line">    Bitmap ovalBitmap = drawOvalBitmap(sourceBitmap);</div><div class="line">    <span class="comment">// 设置图片到ImageView</span></div><div class="line">    imageView.setImageBitmap(ovalBitmap);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Shader/" rel="tag"># Shader</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/23/android/jvm-dalvik-art/" rel="next" title="JVM、Dalvik与ART虚拟机简介">
+                <i class="fa fa-chevron-left"></i> JVM、Dalvik与ART虚拟机简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/03/android/shader-tilemode/" rel="prev" title="Shader的3种平铺模式详解">
+                Shader的3种平铺模式详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">好学人</p>
+              <p class="site-description motion-element" itemprop="description">今年最重要的事情是什么？</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">93</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#BitmapShader类的构造方法"><span class="nav-number">1.</span> <span class="nav-text">BitmapShader类的构造方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从资源文件中获取Bitmap对象"><span class="nav-number">2.</span> <span class="nav-text">从资源文件中获取Bitmap对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用原图绘制一个椭圆形的Bitmap"><span class="nav-number">3.</span> <span class="nav-text">使用原图绘制一个椭圆形的Bitmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将绘制好的椭圆图像加载到ImageView"><span class="nav-number">4.</span> <span class="nav-text">将绘制好的椭圆图像加载到ImageView</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">好学人</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
